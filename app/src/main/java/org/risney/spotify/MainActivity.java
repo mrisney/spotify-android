@@ -29,9 +29,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
+    private GridViewAdapter gridViewAdapter;
     private GridView gridView;
     private List<Item> items = new ArrayList<Item>();
-    private GridViewAdapter gridViewAdapter;
     private int imageCount;
 
     @Override
@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        setTitle("");
 
         gridViewAdapter = new GridViewAdapter(this);
 
@@ -211,11 +212,8 @@ public class MainActivity extends AppCompatActivity {
             items.add(new Item("Image " + imageCount, result));
             Log.d(TAG, "finished downloading image " + imageCount);
             gridViewAdapter.notifyDataSetChanged();
-            // Close progressdialog
-            // mProgressDialog.dismiss();
         }
     }
-
 }
 
 
