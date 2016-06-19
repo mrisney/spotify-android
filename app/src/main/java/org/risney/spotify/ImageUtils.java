@@ -1,0 +1,38 @@
+package org.risney.spotify;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by marcrisney on 6/18/16.
+ */
+public class ImageUtils {
+
+    final static String UA = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
+
+    public static List<String> findImages(String question, int count) {
+        List<String> imageLinks = new ArrayList<String>();
+        try {
+            String googleUrl = "https://www.google.com/search?tbm=isch&q=" + question.replace(",", "");
+            Document doc = Jsoup.connect(googleUrl).userAgent(UA).timeout(10 * 1000).get();
+            List<Element> imageLinkList = doc.select("[data-src]").subList(0, count);
+            for (Element link : imageLinkList) {
+                imageLinks.add(link.attr("abs:data-src").toString());
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        return imageLinks;
+    }
+
+
+    // InputStream input = contentResolver.openInputStream(httpuri);
+    // Bitmap b = BitmapFactory.decodeStream(input, null, options);
+
+}
