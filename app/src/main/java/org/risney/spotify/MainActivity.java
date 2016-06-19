@@ -21,9 +21,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,23 +55,25 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
 
+
         // Search input on app bar.
+
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        final SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
         // Search input listener
         SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
             public boolean onQueryTextChange(String newText) {
-                // this is your adapter that will be filtered
-                return true;
+                return false;
             }
 
             public boolean onQueryTextSubmit(final String query) {
-                // Here u can get the value "query" which is entered in the search box.
                 Log.d(TAG, "query  : " + query);
+               // Toast.makeText(context,query, Toast.LENGTH_LONG).show();
                 imageCount = 0;
                 items.clear();
+
                 new Thread(new Runnable() {
                     public void run() {
                         List<String> links = ImageUtils.findImages(query, 20);
@@ -83,26 +83,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).start();
 
-                return true;
+                searchView.clearFocus();
+
+                return false;
             }
         };
-        searchView.setOnQueryTextListener(queryTextListener);
-        return super.onCreateOptionsMenu(menu);
-    }
 
-    public Bitmap getBitmapFromURL(String src) {
-        try {
-            java.net.URL url = new java.net.URL(src);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        searchView.setOnQueryTextListener(queryTextListener);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     private class MyAdapter extends BaseAdapter {
