@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -20,6 +19,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,16 +31,19 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
     private GridView gridView;
     private List<Item> items = new ArrayList<Item>();
-
+    private GridViewAdapter gridViewAdapter;
     private int imageCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        gridView = (GridView) findViewById(R.id.gridview);
-        gridView.setAdapter(new MyAdapter(this));
 
+        setContentView(R.layout.activity_main);
+
+        gridViewAdapter = new GridViewAdapter(this);
+
+        gridView = (GridView) findViewById(R.id.gridview);
+        gridView.setAdapter(gridViewAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 // this 'mActivity' parameter is Activity object, you can send the current activity.
@@ -68,22 +71,15 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-            public boolean onQueryTextSubmit(final String query) {
-                Log.d(TAG, "query  : " + query);
-               // Toast.makeText(context,query, Toast.LENGTH_LONG).show();
+            public boolean onQueryTextSubmit(String query) {
+
                 imageCount = 0;
                 items.clear();
 
-                new Thread(new Runnable() {
-                    public void run() {
-                        List<String> links = ImageUtils.findImages(query, 20);
-                        for (String link : links) {
-                            new DownloadImage().execute(link);
-                        }
-                    }
-                }).start();
+                new GoogleImageSearchTask().execute(query);
 
                 searchView.clearFocus();
+                Toast.makeText(getApplicationContext(), "Searching Google images for '" + query + "'", Toast.LENGTH_LONG).show();
 
                 return false;
             }
@@ -94,16 +90,12 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    private class MyAdapter extends BaseAdapter {
-
+    private class GridViewAdapter extends BaseAdapter {
         private LayoutInflater inflater;
 
-        public MyAdapter(Context context) {
+        public GridViewAdapter(Context context) {
             inflater = LayoutInflater.from(context);
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
         }
-
 
         @Override
         public int getCount() {
@@ -154,6 +146,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Async Search Images Task
+    class GoogleImageSearchTask extends AsyncTask<String, String, String> {
+
+        List<String> srcLinks;
+
+        @Override
+        protected void onPreExecute() {
+            srcLinks = new ArrayList<String>();
+        }
+
+        @Override
+        protected String doInBackground(String... searchQuery) {
+            srcLinks = GoogleImageSearch.findImages(searchQuery[0], 20);
+            return searchQuery[0];
+        }
+
+        @Override
+        protected void onPostExecute(String searchQuery) {
+            for (String src : srcLinks) {
+                new DownloadImage().execute(src);
+            }
+        }
+    }
+
     // DownloadImage AsyncTask
     private class DownloadImage extends AsyncTask<String, Void, Bitmap> {
 
@@ -193,7 +209,8 @@ public class MainActivity extends AppCompatActivity {
             // Set the bitmap into ImageView
             imageCount++;
             items.add(new Item("Image " + imageCount, result));
-
+            Log.d(TAG, "finished downloading image " + imageCount);
+            gridViewAdapter.notifyDataSetChanged();
             // Close progressdialog
             // mProgressDialog.dismiss();
         }

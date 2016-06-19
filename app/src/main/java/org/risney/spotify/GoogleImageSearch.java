@@ -10,7 +10,8 @@ import java.util.List;
 /**
  * Created by marcrisney on 6/18/16.
  */
-public class ImageUtils {
+public class GoogleImageSearch {
+
 
     final static String UA = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
 
@@ -30,9 +31,4 @@ public class ImageUtils {
 
         return imageLinks;
     }
-
-
-    // InputStream input = contentResolver.openInputStream(httpuri);
-    // Bitmap b = BitmapFactory.decodeStream(input, null, options);
-
 }
