@@ -1,4 +1,4 @@
-package org.risney.spotify;
+package org.risney.cache.android;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -8,6 +8,8 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import org.risney.spotify.R;
 
 /**
  * Created by marcrisney on 6/19/16.

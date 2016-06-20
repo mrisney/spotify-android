@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyCompatTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name="org.risney.cache.android.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,14 +21,14 @@
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
         </activity>
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name="org.risney.cache.android.SettingsActivity"></activity>
         <activity
-            android:name=".ImageViewActivity"
+            android:name="org.risney.cache.android.ImageViewActivity"
             android:label="@string/title_activity_image_view"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName="org.risney.cache.android.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.risney.spotify.MainActivity" />
+                android:value="org.risney.cache.android.MainActivity" />
         </activity>
     </application>
 

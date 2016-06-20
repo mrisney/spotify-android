@@ -1,4 +1,4 @@
-package org.risney.spotify;
+package org.risney.cache.android;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -25,6 +25,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.risney.spotify.R;
 
 import java.io.InputStream;
 import java.util.ArrayList;

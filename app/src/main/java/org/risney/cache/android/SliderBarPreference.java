@@ -1,4 +1,4 @@
-package org.risney.spotify;
+package org.risney.cache.android;
 
 import android.app.AlertDialog;
 import android.content.Context;

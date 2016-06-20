@@ -1,7 +1,9 @@
-package org.risney.spotify;
+package org.risney.cache.android;
 
 import android.os.Bundle;
 import android.app.Activity;
+
+import org.risney.spotify.R;
 
 public class ImageViewActivity extends Activity {
 

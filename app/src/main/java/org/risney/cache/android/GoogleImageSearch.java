@@ -1,4 +1,4 @@
-package org.risney.spotify;
+package org.risney.cache.android;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

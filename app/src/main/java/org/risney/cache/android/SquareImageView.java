@@ -1,4 +1,4 @@
-package org.risney.spotify;
+package org.risney.cache.android;
 
 import android.content.Context;
 import android.util.AttributeSet;
