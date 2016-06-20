@@ -30,6 +30,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         private SliderBarPreference maxSearchResultsPref;
         private SliderBarPreference maxCacheImagesPref;
+        private SliderBarPreference maxCacheSizePref;
 
 
         @Override
@@ -43,6 +44,8 @@ public class SettingsActivity extends PreferenceActivity {
             // Get widgets :
             maxSearchResultsPref = (SliderBarPreference) this.findPreference("MAX_SEARCH_RESULTS");
             maxCacheImagesPref = (SliderBarPreference) this.findPreference("MAX_CACHE_IMAGES");
+            maxCacheSizePref  = (SliderBarPreference) this.findPreference("MAX_CACHE_SIZE");
+
 
             // Set listener :
             getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
@@ -54,6 +57,10 @@ public class SettingsActivity extends PreferenceActivity {
             // Set maximum cache images :
             int maxCacheImages = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_IMAGES", 33);
             maxCacheImagesPref.setSummary(this.getString(R.string.number_of_images_summary).replace("$2", "" + maxCacheImages));
+
+            // Set maximum cache size :
+            int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_SIZE", 33);
+            maxCacheSizePref.setSummary(this.getString(R.string.size_of_cache_summary).replace("$3", "" + maxCacheSize));
 
         }
 
@@ -67,6 +74,11 @@ public class SettingsActivity extends PreferenceActivity {
             // Set maximum cache images :
             int maxCacheImages = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_IMAGES", 33);
             maxCacheImagesPref.setSummary(this.getString(R.string.number_of_images_summary).replace("$2", "" + maxCacheImages));
+
+            // Set maximum cache size :
+            int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_SIZE", 33);
+            maxCacheSizePref.setSummary(this.getString(R.string.size_of_cache_summary).replace("$3", "" + maxCacheSize));
+
 
         }
     }

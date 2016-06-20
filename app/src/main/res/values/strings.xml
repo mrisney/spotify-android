@@ -18,17 +18,10 @@
     <string name="number_of_images">Number of images in cache</string>
     <string name="number_of_images_summary">Current value is $2</string>
 
+    <string name="size_of_cache">Size of cache</string>
+    <string name="size_of_cache_summary">Current size $3</string>
+    <string name="size_of_cache_unit">Kb</string>
 
-    <string name="textview_text">SeekBarPreference test</string>
-    <string name="settings_summary">Current value is $1</string>
-    <string name="settings_unit">Km</string>
-    <string name="settings_title">Here comes the title</string>
-
-
-    number of images it holds
-
-
-    <string name="settings_dialog_message">Here comes a message</string>
-    <string name="title_activity_image_view">ImageViewActivity</string>
+    <string name="title_activity_image_view">View Image</string>
 
 </resources>
