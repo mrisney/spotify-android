@@ -2,16 +2,20 @@ package org.risney.spotify;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private GridView gridView;
     private List<Item> items = new ArrayList<Item>();
     private int imageCount;
+    private SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +52,29 @@ public class MainActivity extends AppCompatActivity {
         gridView.setAdapter(gridViewAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                // this 'mActivity' parameter is Activity object, you can send the current activity.
-                //Intent i=new Intent(this,MainActivity.class);
-                //this.startActivity(i);
+
+                Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
+                startActivity(intent);
             }
         });
+
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+    }
+
+
+    /**
+     * react to the user tapping/selecting an options menu item
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                Intent i = new Intent(this, SettingsActivity.class);
+                startActivity(i);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -61,34 +84,47 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Search input on app bar.
-
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
         // Search input listener
         SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+
             public boolean onQueryTextChange(String newText) {
                 return false;
             }
 
             public boolean onQueryTextSubmit(String query) {
+                Toast.makeText(getApplicationContext(), "Searching images for '" + query + "'", Toast.LENGTH_LONG).show();
 
                 imageCount = 0;
                 items.clear();
 
-                new GoogleImageSearchTask().execute(query);
+                int searchResults = sharedPref.getInt("MAX_SEARCH_RESULTS", 33);
+                SearchTaskParams taskParams = new SearchTaskParams(query, searchResults);
+
+                new SearchTask().execute(taskParams);
 
                 searchView.clearFocus();
-                Toast.makeText(getApplicationContext(), "Searching Google images for '" + query + "'", Toast.LENGTH_LONG).show();
 
                 return false;
             }
         };
 
         searchView.setOnQueryTextListener(queryTextListener);
-
         return super.onCreateOptionsMenu(menu);
+    }
+
+    // Async Search Images Task
+    private static class SearchTaskParams {
+        String query;
+        int maxSearchResults;
+
+        SearchTaskParams(String query, int maxSearchResults) {
+            this.query = query;
+            this.maxSearchResults = maxSearchResults;
+        }
     }
 
     private class GridViewAdapter extends BaseAdapter {
@@ -147,8 +183,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Async Search Images Task
-    class GoogleImageSearchTask extends AsyncTask<String, String, String> {
+    private class SearchTask extends AsyncTask<SearchTaskParams, Void, Void> {
 
         List<String> srcLinks;
 
@@ -158,34 +193,26 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... searchQuery) {
-            srcLinks = GoogleImageSearch.findImages(searchQuery[0], 20);
-            return searchQuery[0];
+        protected Void doInBackground(SearchTaskParams... params) {
+            srcLinks = GoogleImageSearch.findImages(params[0].query, params[0].maxSearchResults);
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String searchQuery) {
+        protected void onPostExecute(Void result) {
             for (String src : srcLinks) {
-                new DownloadImage().execute(src);
+                new DownloadImagTask().execute(src);
             }
         }
+
     }
 
     // DownloadImage AsyncTask
-    private class DownloadImage extends AsyncTask<String, Void, Bitmap> {
+    private class DownloadImagTask extends AsyncTask<String, Void, Bitmap> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            // Create a progressdialog
-            //mProgressDialog = new ProgressDialog(MainActivity.this);
-            // Set progressdialog title
-            //mProgressDialog.setTitle("Download Image Tutorial");
-            // Set progressdialog message
-            //mProgressDialog.setMessage("Loading...");
-            //mProgressDialog.setIndeterminate(false);
-            // Show progressdialog
-            // mProgressDialog.show();
         }
 
         @Override

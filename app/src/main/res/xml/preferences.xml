@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="active"
+        android:title="Active" />
+    <PreferenceCategory android:title="@string/pref_search_settings">
+        <org.risney.spotify.SliderBarPreference
+            android:defaultValue="33"
+            android:max="100"
+            android:key="MAX_SEARCH_RESULTS"
+            android:summary="@string/max_search_results_summary"
+            android:title="@string/max_search_results" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_cache_settings">
+        <ListPreference
+            android:entries="@array/evictionAlgorithm"
+            android:entryValues="@array/evictionAlgorithmValues"
+            android:key="prefEvictionAlgorithm"
+            android:summary="@string/cache_algorithm_summary"
+            android:title="@string/cache_algorithm" />
+
+        <org.risney.spotify.SliderBarPreference
+            android:defaultValue="33"
+            android:max="100"
+            android:key="MAX_CACHE_IMAGES"
+            android:summary="@string/number_of_images_summary"
+            android:title="@string/number_of_images" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

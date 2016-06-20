@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="evictionAlgorithm">
+        <item name="LRU">Least Recently Used (LRU)</item>
+        <item name="LFU">Least Frequently Used (LFU)</item>
+        <item name="FIFO">First In, First Out (FIFO)</item>
+        <item name="SIZE">Largest Number Of Bytes</item>
+    </string-array>
+    <string-array name="evictionAlgorithmValues">
+        <item name="LRU">LRU</item>
+        <item name="LFU">LFU</item>
+        <item name="FIFO">FIFO</item>
+        <item name="SIZE">SIZE</item>
+    </string-array>
+
+</resources>
