@@ -47,7 +47,7 @@ public class SliderBarPreference extends DialogPreference implements SeekBar.OnS
         if(mSuffixId == 0) mSuffix = attrs.getAttributeValue(androidns, "text");
         else mSuffix = mContext.getString(mSuffixId);
 
-        // Get default and max seekbar values :
+        // Get default and max slider bar values :
         mDefault = attrs.getAttributeIntValue(androidns, "defaultValue", 0);
         mMax = attrs.getAttributeIntValue(androidns, "max", 100);
     }
