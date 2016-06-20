@@ -15,8 +15,8 @@
     <string name="cache_algorithm">Cache algorithm</string>
     <string name="cache_algorithm_summary">Set the caching algorithm</string>
 
-    <string name="number_of_images">Number of images in cache</string>
-    <string name="number_of_images_summary">Current value is $2</string>
+    <string name="number_of_images">Maximum number of images in cache</string>
+    <string name="number_of_images_summary">Current maximum value is $2</string>
 
     <string name="size_of_cache">Maximum size of cache</string>
     <string name="size_of_cache_summary">Current maximum size $3 Kb</string>
