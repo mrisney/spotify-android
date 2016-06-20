@@ -33,7 +33,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = MainActivity.class.getSimpleName();
     private GridViewAdapter gridViewAdapter;
     private GridView gridView;
     private List<Item> items = new ArrayList<Item>();
