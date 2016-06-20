@@ -3,6 +3,7 @@ package org.risney.spotify;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -27,7 +28,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     public static class SettingsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
 
-
+        private ListPreference evictionPoliciesPref;
         private SliderBarPreference maxSearchResultsPref;
         private SliderBarPreference maxCacheImagesPref;
         private SliderBarPreference maxCacheSizePref;
@@ -42,43 +43,87 @@ public class SettingsActivity extends PreferenceActivity {
             addPreferencesFromResource(R.xml.preferences);
 
             // Get widgets :
+            evictionPoliciesPref = (ListPreference) this.findPreference("EVICTION_POLICY");
             maxSearchResultsPref = (SliderBarPreference) this.findPreference("MAX_SEARCH_RESULTS");
             maxCacheImagesPref = (SliderBarPreference) this.findPreference("MAX_CACHE_IMAGES");
-            maxCacheSizePref  = (SliderBarPreference) this.findPreference("MAX_CACHE_SIZE");
-
+            maxCacheSizePref = (SliderBarPreference) this.findPreference("MAX_CACHE_SIZE");
 
             // Set listener :
             getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
             // Set maximum search results summary :
-            int maxSearchResults = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_SEARCH_RESULTS", 33);
-            maxSearchResultsPref.setSummary(this.getString(R.string.max_search_results_summary).replace("$1", "" + maxSearchResults));
+            try {
+                int maxSearchResults = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_SEARCH_RESULTS", 33);
+                maxSearchResultsPref.setSummary(this.getString(R.string.max_search_results_summary).replace("$1", "" + maxSearchResults));
+            } catch (Exception e) {
+
+            }
+
+            // Set eviction policy  :
+            try {
+                String evictionPolicy = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getString("EVICTION_POLICY", "LRU");
+                evictionPoliciesPref.setSummary(this.getString(R.string.cache_algorithm_summary).replace("$2", "" + evictionPolicy));
+            } catch (Exception e) {
+
+            }
 
             // Set maximum cache images :
-            int maxCacheImages = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_IMAGES", 33);
-            maxCacheImagesPref.setSummary(this.getString(R.string.number_of_images_summary).replace("$2", "" + maxCacheImages));
+            try {
+
+                int maxCacheImages = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_IMAGES", 33);
+                maxCacheImagesPref.setSummary(this.getString(R.string.number_of_images_summary).replace("$3", "" + maxCacheImages));
+            } catch (Exception e) {
+
+            }
 
             // Set maximum cache size :
-            int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_SIZE", 33);
-            maxCacheSizePref.setSummary(this.getString(R.string.size_of_cache_summary).replace("$3", "" + maxCacheSize));
+            try {
+
+                int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_SIZE", 1024);
+                maxCacheSizePref.setSummary(this.getString(R.string.size_of_cache_summary).replace("$4", "" + maxCacheSize));
+            } catch (Exception e) {
+
+            }
 
         }
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
-            // Set maximum search results summary :
-            int maxSearchResults = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_SEARCH_RESULTS", 33);
-            maxSearchResultsPref.setSummary(this.getString(R.string.max_search_results_summary).replace("$1", "" + maxSearchResults));
 
-            // Set maximum cache images :
-            int maxCacheImages = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_IMAGES", 33);
-            maxCacheImagesPref.setSummary(this.getString(R.string.number_of_images_summary).replace("$2", "" + maxCacheImages));
+            try {
+                // Set maximum search results summary :
+                int maxSearchResults = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_SEARCH_RESULTS", 33);
+                maxSearchResultsPref.setSummary(this.getString(R.string.max_search_results_summary).replace("$1", "" + maxSearchResults));
+            } catch (Exception e) {
+
+            }
+
+            // Set eviction policy  :
+            try {
+                String evictionPolicy = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getString("EVICTION_POLICY", "LRU");
+                evictionPoliciesPref.setSummary(this.getString(R.string.cache_algorithm_summary).replace("$2", "" + evictionPolicy));
+            } catch (Exception e) {
+
+            }
+
+
+            try {
+                // Set maximum cache images :
+                int maxCacheImages = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_IMAGES", 33);
+                maxCacheImagesPref.setSummary(this.getString(R.string.number_of_images_summary).replace("$3", "" + maxCacheImages));
+            } catch (Exception e) {
+
+            }
 
             // Set maximum cache size :
-            int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_SIZE", 33);
-            maxCacheSizePref.setSummary(this.getString(R.string.size_of_cache_summary).replace("$3", "" + maxCacheSize));
+            try {
 
+                int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_SIZE", 33);
+                maxCacheSizePref.setSummary(this.getString(R.string.size_of_cache_summary).replace("$4", "" + maxCacheSize));
+            } catch (Exception e) {
+
+            }
 
         }
     }
