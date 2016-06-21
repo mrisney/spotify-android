@@ -16,27 +16,32 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * <h1>Add Two Numbers!</h1> The AddNum program implements an application that
- * simply adds two given integer numbers and Prints the output on the screen.
+ * ImageCache implements MapCache to provide most of the methods of a HashMap, as a container to cache
+ * in memory strong references to Key,Value sets - comprised of ByteBuffers.
+ * Using the Builder Pattern, configuring the cache requires an EvictionPolicy, maxImages and maxBytes are optional
+ * as there are defaults of
+ * <b>DEFAULT_MAX_IMAGES : 33</b> and
+ * <b>DEFAULT_MAX_BYTES : 1024 * 1024 (1 megabyte)</b>
  * <p>
- * <b>Note:</b> Giving proper comments in your program makes it more user
- * friendly and it is assumed as a high quality code.
+ * The standard "put" and "get" methods are available. "putIfAbsent" is present, as it allows a hitcount to be recorded
+ * on the CacheEntry. for Least Recently Used LRU - Cache Eviction, that is a factor in determing which CacheEntry should be
+ * evicted in event of threshold breach.
  *
- * @author Zara Ali
+ * @author marc.risney@gmail.com
  * @version 1.0
- * @since 2014-03-31
+ * @since 2016-06-20
  */
 
 public class ImageCache implements MapCache {
 
     private static final String TAG = ImageCache.class.getSimpleName();
-    private static final int DEFAUL_MAX_IMAGES = 10;
+    private static final int DEFAULT_MAX_IMAGES = 33;
 
-    // default to 5 megabytes
-    private static final int DEFAULT_MAX_BYTES = 5242880;
+    // default to 1 megabyte
+    private static final int DEFAULT_MAX_BYTES = 1024 * 1024;
 
     private final EvictionPolicy evictionPolicy; // required
-    protected int maxImages = DEFAUL_MAX_IMAGES; // optional
+    protected int maxImages = DEFAULT_MAX_IMAGES; // optional
     protected int maxBytes = DEFAULT_MAX_BYTES; // optional
 
     private volatile int curentByteSize;
@@ -71,7 +76,7 @@ public class ImageCache implements MapCache {
     }
 
     public int getDefaultMaxImages() {
-        return DEFAUL_MAX_IMAGES;
+        return DEFAULT_MAX_IMAGES;
     }
 
     public int getDefaultMaxBytes() {
@@ -104,7 +109,7 @@ public class ImageCache implements MapCache {
 
         public Builder(EvictionPolicy evictionPolicy) {
             this.evictionPolicy = evictionPolicy;
-            this.maxImages = DEFAUL_MAX_IMAGES;
+            this.maxImages = DEFAULT_MAX_IMAGES;
             this.maxBytes = DEFAULT_MAX_BYTES;
         }
 
@@ -124,7 +129,7 @@ public class ImageCache implements MapCache {
     }
 
     /**
-     * @return MapPutResult private method that uses the comparators, size and number of bytes to evaluate wether to
+     * @return MapPutResult private method that uses the comparators, size and number of bytes to evaluate whether to
      * evict an entry. This is essentially the secret sauce.
      * current cache size, and number of entries are updated accordingly.
      */

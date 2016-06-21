@@ -43,7 +43,9 @@ public class MainActivity extends AppCompatActivity {
 
     private int MAX_SEARCH_RESULTS = 33;
     private int MAX_CACHE_IMAGES = 33;
-    private int MAX_CACHE_BYTES = 507250;
+
+    // 1 MB
+    private int MAX_CACHE_BYTES = 1024 * 1024;
     private String EVICTION_POLICY = "LRU";
 
     private ImageCache imageCache;
@@ -63,23 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
         setTitle("");
 
-        imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
-                .maxBytes(MAX_CACHE_BYTES)
-                .maxImages(MAX_CACHE_IMAGES)
-                .build();
-
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                reConfigureImageCache(sharedPreferences, key);
-            }
-        };
-        sharedPref.registerOnSharedPreferenceChangeListener(listener);
-
-
         gridViewAdapter = new GridViewAdapter(this);
+
         gridView = (GridView) findViewById(R.id.gridview);
         gridView.setAdapter(gridViewAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -89,13 +76,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
+                .maxBytes(MAX_CACHE_BYTES)
+                .maxImages(MAX_CACHE_IMAGES)
+                .build();
+
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                reConfigureImageCache(sharedPreferences, key);
+            }
+        };
+        sharedPref.registerOnSharedPreferenceChangeListener(listener);
+
         popUp();
 
     }
 
 
     private void reConfigureImageCache(SharedPreferences sharedPreferences, String key) {
-        Log.d(TAG, "setting " + key + " changed");
+        Log.d(TAG, key + " setting changed ...");
         boolean reconfig = false;
         switch (key) {
             case "MAX_SEARCH_RESULTS":
@@ -112,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "new max cache images = " + MAX_CACHE_IMAGES);
                 reconfig = true;
                 break;
-            case "MAX_CACHE_SIZE":
-                MAX_CACHE_BYTES = sharedPreferences.getInt("MAX_CACHE_SIZE", 33);
+            case "MAX_CACHE_KBYTES":
+                MAX_CACHE_BYTES = sharedPreferences.getInt("MAX_CACHE_KBYTES", 1024) * 1024;
                 Log.d(TAG, "new max cache size = " + MAX_CACHE_BYTES);
                 reconfig = true;
                 break;
@@ -282,14 +284,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void result) {
             for (String src : srcLinks) {
-                new DownloadImagTask().execute(src);
+                new GetImageTask().execute(src);
             }
         }
 
     }
 
-    // DownloadImage AsyncTask
-    private class DownloadImagTask extends AsyncTask<String, Void, Bitmap> {
+    // Get images asynchronously
+
+    private class GetImageTask extends AsyncTask<String, Void, Bitmap> {
 
         @Override
         protected void onPreExecute() {
@@ -335,6 +338,11 @@ public class MainActivity extends AppCompatActivity {
             items.add(new Item("Image " + imageCount, result));
             Log.d(TAG, "finished downloading image " + imageCount);
             gridViewAdapter.notifyDataSetChanged();
+
+
+
+
+
         }
     }
 }

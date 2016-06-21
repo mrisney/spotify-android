@@ -50,7 +50,7 @@ public class SettingsActivity extends PreferenceActivity {
             evictionPoliciesPref = (ListPreference) this.findPreference("EVICTION_POLICY");
             maxSearchResultsPref = (SliderBarPreference) this.findPreference("MAX_SEARCH_RESULTS");
             maxCacheImagesPref = (SliderBarPreference) this.findPreference("MAX_CACHE_IMAGES");
-            maxCacheSizePref = (SliderBarPreference) this.findPreference("MAX_CACHE_SIZE");
+            maxCacheSizePref = (SliderBarPreference) this.findPreference("MAX_CACHE_KBYTES");
 
             // Set listener :
             getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
@@ -81,7 +81,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             // Set maximum cache size :
             try {
-                int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_SIZE", 1024);
+                int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_KBYTES", 1024);
                 maxCacheSizePref.setSummary(this.getString(R.string.size_of_cache_summary).replace("$4", "" + maxCacheSize));
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
@@ -119,7 +119,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             // Set maximum cache size :
             try {
-                int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_SIZE", 33);
+                int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_KBYTES", 1024);
                 maxCacheSizePref.setSummary(this.getString(R.string.size_of_cache_summary).replace("$4", "" + maxCacheSize));
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());

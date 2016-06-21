@@ -29,7 +29,7 @@
             android:title="@string/size_of_cache"
             android:text="@string/size_of_cache_unit"
             android:summary="@string/size_of_cache_summary"
-            android:key="MAX_CACHE_SIZE"
+            android:key="MAX_CACHE_KBYTES"
             android:max="5120"
             android:defaultValue="1024" />
 

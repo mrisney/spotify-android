@@ -2,6 +2,17 @@ package org.risney.cache.lib;
 
 import java.nio.ByteBuffer;
 
+
+/**
+ * MapCacheEntry - basic POJO for ImageCache, extending MapCache, separating the properties
+ * used in the EvictionPolicy from the more starightforward Key and Value Properties.
+ *
+ * @author marc.risney@gmail.com
+ * @version 1.0
+ * @since 2016-06-20
+ */
+
+
 public class MapCacheEntry extends CacheEntry {
 
     private final ByteBuffer key;

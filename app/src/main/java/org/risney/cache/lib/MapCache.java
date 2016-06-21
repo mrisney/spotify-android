@@ -1,10 +1,15 @@
 package org.risney.cache.lib;
 
-/**
- * Created by marcrisney on 6/20/16.
- */
 import java.io.IOException;
 import java.nio.ByteBuffer;
+
+/**
+ * Interface for ImageCache
+ *
+ * @author marc.risney@gmail.com
+ * @version 1.0
+ * @since 2016-06-20
+ */
 
 public interface MapCache {
 

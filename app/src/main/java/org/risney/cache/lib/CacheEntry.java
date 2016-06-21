@@ -3,9 +3,18 @@ package org.risney.cache.lib;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+
 /**
- * Created by marcrisney on 6/20/16.
+ * CacheEntry is the POJO representation, with properties used in the EvictionPolicy
+ * these properties are use to evaluate which CacheEntry gets evicted, when the threshold of
+ * the cache is reached, if a new EvictionPolicy was created, presumably a new property would be
+ * added here, so that it could be compared to its neighboring Entries in the Cache, for eviction
+ * @author marc.risney@gmail.com
+ * @version 1.0
+ * @since 2016-06-20
+ *
  */
+
 public class CacheEntry {
 
     private final long id;
