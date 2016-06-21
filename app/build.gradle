@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "org.risney.spotify"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -22,6 +22,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile group: 'org.jsoup', name: 'jsoup', version: '1.9.2'
+
 }

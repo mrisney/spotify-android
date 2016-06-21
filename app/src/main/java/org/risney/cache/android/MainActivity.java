@@ -26,9 +26,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.risney.cache.lib.ImageCache;
+import org.risney.cache.lib.policies.EvictionPolicy;
+import org.risney.cache.lib.utils.ConversionUtils;
 import org.risney.spotify.R;
 
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,33 +40,97 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    private int MAX_SEARCH_RESULTS = 33;
+    private int MAX_CACHE_IMAGES = 33;
+    private int MAX_CACHE_BYTES = 507250;
+    private String EVICTION_POLICY = "LRU";
+
+    private ImageCache imageCache;
     private GridViewAdapter gridViewAdapter;
     private GridView gridView;
     private List<Item> items = new ArrayList<Item>();
     private int imageCount;
     private SharedPreferences sharedPref;
+    private SharedPreferences.OnSharedPreferenceChangeListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
         setTitle("");
 
-        gridViewAdapter = new GridViewAdapter(this);
+        imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
+                .maxBytes(MAX_CACHE_BYTES)
+                .maxImages(MAX_CACHE_IMAGES)
+                .build();
 
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                reConfigureImageCache(sharedPreferences, key);
+            }
+        };
+        sharedPref.registerOnSharedPreferenceChangeListener(listener);
+
+
+        gridViewAdapter = new GridViewAdapter(this);
         gridView = (GridView) findViewById(R.id.gridview);
         gridView.setAdapter(gridViewAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
                 Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
                 startActivity(intent);
             }
         });
 
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        popUp();
 
+    }
+
+
+    private void reConfigureImageCache(SharedPreferences sharedPreferences, String key) {
+        Log.d(TAG, "setting " + key + " changed");
+        boolean reconfig = false;
+        switch (key) {
+            case "MAX_SEARCH_RESULTS":
+                MAX_SEARCH_RESULTS = sharedPreferences.getInt("MAX_SEARCH_RESULTS", 33);
+                Log.d(TAG, "new max search results = " + MAX_SEARCH_RESULTS);
+                break;
+            case "EVICTION_POLICY":
+                EVICTION_POLICY = sharedPreferences.getString("EVICTION_POLICY", "LRU");
+                Log.d(TAG, "new eviction policy = " + EVICTION_POLICY);
+                reconfig = true;
+                break;
+            case "MAX_CACHE_IMAGES":
+                MAX_CACHE_IMAGES = sharedPreferences.getInt("MAX_CACHE_IMAGES", 33);
+                Log.d(TAG, "new max cache images = " + MAX_CACHE_IMAGES);
+                reconfig = true;
+                break;
+            case "MAX_CACHE_SIZE":
+                MAX_CACHE_BYTES = sharedPreferences.getInt("MAX_CACHE_SIZE", 33);
+                Log.d(TAG, "new max cache size = " + MAX_CACHE_BYTES);
+                reconfig = true;
+                break;
+            default:
+                Log.d(TAG, "unknown setting changed");
+        }
+
+        if (reconfig) {
+            imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
+                    .maxBytes(MAX_CACHE_BYTES)
+                    .maxImages(MAX_CACHE_IMAGES)
+                    .build();
+
+        }
+    }
+
+    private void popUp() {
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.popup, (ViewGroup) findViewById(R.id.like_popup_iv));
@@ -74,10 +142,7 @@ public class MainActivity extends AppCompatActivity {
         toast.setDuration(Toast.LENGTH_SHORT);
         toast.setView(layout);
         toast.show();
-
-
     }
-
 
     /**
      * react to the user tapping/selecting an options menu item
@@ -118,9 +183,7 @@ public class MainActivity extends AppCompatActivity {
                 imageCount = 0;
                 items.clear();
 
-                int searchResults = sharedPref.getInt("MAX_SEARCH_RESULTS", 33);
-                SearchTaskParams taskParams = new SearchTaskParams(query, searchResults);
-
+                SearchTaskParams taskParams = new SearchTaskParams(query, MAX_SEARCH_RESULTS);
                 new SearchTask().execute(taskParams);
 
                 searchView.clearFocus();
@@ -132,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(queryTextListener);
         return super.onCreateOptionsMenu(menu);
     }
+
 
     // Async Search Images Task
     private static class SearchTaskParams {
@@ -236,15 +300,30 @@ public class MainActivity extends AppCompatActivity {
         protected Bitmap doInBackground(String... URL) {
 
             String imageURL = URL[0];
-
             Bitmap bitmap = null;
+
             try {
-                // Download Image from URL
-                InputStream input = new java.net.URL(imageURL).openStream();
-                // Decode Bitmap
-                bitmap = BitmapFactory.decodeStream(input);
+
+                ByteBuffer key = ConversionUtils.stringToByteBuffer(imageURL);
+
+                if (imageCache.containsKey(key)) {
+
+                    ByteBuffer byteBuffer = imageCache.get(key);
+                    bitmap = ConversionUtils.byteBufferToBitmap(byteBuffer);
+                    Log.d(TAG, "found image in cache for key : " + imageURL);
+
+                } else {
+
+                    InputStream is = new java.net.URL(imageURL).openStream();
+
+                    bitmap = BitmapFactory.decodeStream(is);
+                    ByteBuffer value = ConversionUtils.bitmapToByteBuffer(bitmap);
+
+                    imageCache.putIfAbsent(key, value);
+                    Log.d(TAG, "put image in cache for key : " + imageURL);
+                }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "error downloading images " + e.toString());
             }
             return bitmap;
         }
