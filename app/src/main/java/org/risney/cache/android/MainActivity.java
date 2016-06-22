@@ -42,20 +42,19 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private int MAX_SEARCH_RESULTS = 33;
-    private int MAX_CACHE_IMAGES = 33;
-
-    // 1 MB
-    private int MAX_CACHE_BYTES = 1024 * 1024;
-    private String EVICTION_POLICY = "LRU";
+    private int MAX_SEARCH_RESULTS;
+    private int MAX_CACHE_IMAGES;
+    private int MAX_CACHE_BYTES;
+    private String EVICTION_POLICY;
 
     private ImageCache imageCache;
+    private SharedPreferences sharedPref;
+    private SharedPreferences.OnSharedPreferenceChangeListener listener;
+
     private GridViewAdapter gridViewAdapter;
     private GridView gridView;
     private List<Image> images = new ArrayList<Image>();
-    private int imageCount;
-    private SharedPreferences sharedPref;
-    private SharedPreferences.OnSharedPreferenceChangeListener listener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,34 +76,44 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
 
                 Image image = (Image) v.getTag();
-                imageCache.putIfAbsent(image.getKey(),ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
-                gridViewAdapter.notifyDataSetChanged();
+
+                if (null == imageCache.get(image.getKey())) {
+                    imageCache.putIfAbsent(image.getKey(), ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
+                    gridViewAdapter.notifyDataSetChanged();
+                }
+                
 
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 image.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] bytes = stream.toByteArray();
-                intent.putExtra("bitmapbytes",bytes);
+                intent.putExtra("bitmapbytes", bytes);
 
-                Log.d(TAG, "size of image = "+image.getBitmap().getByteCount());
+                Log.d(TAG, "size of image = " + image.getBitmap().getByteCount());
 
                 startActivity(intent);
             }
         });
 
-
-        imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
-                .maxBytes(MAX_CACHE_BYTES)
-                .maxImages(MAX_CACHE_IMAGES)
-                .build();
-
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 reConfigureImageCache(sharedPreferences, key);
             }
         };
+
         sharedPref.registerOnSharedPreferenceChangeListener(listener);
+
+        MAX_SEARCH_RESULTS = sharedPref.getInt("MAX_SEARCH_RESULTS", 33);
+        MAX_CACHE_IMAGES = sharedPref.getInt("MAX_CACHE_IMAGES", 33);
+        MAX_CACHE_BYTES = sharedPref.getInt("MAX_CACHE_BYTES", 1024 * 1024);
+        EVICTION_POLICY = sharedPref.getString("EVICTION_POLICY", "LRU");
+
+        imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
+                .maxBytes(MAX_CACHE_BYTES)
+                .maxImages(MAX_CACHE_IMAGES)
+                .build();
 
         popUp();
 
@@ -197,15 +206,10 @@ public class MainActivity extends AppCompatActivity {
 
             public boolean onQueryTextSubmit(String query) {
                 Toast.makeText(getApplicationContext(), "Searching images for '" + query + "'", Toast.LENGTH_LONG).show();
-
-                imageCount = 0;
                 images.clear();
-
                 SearchTaskParams taskParams = new SearchTaskParams(query, MAX_SEARCH_RESULTS);
                 new SearchTask().execute(taskParams);
-
                 searchView.clearFocus();
-
                 return false;
             }
         };
@@ -269,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (null != imageCache.get(image.getKey())) {
                 name.setText("cached");
-            } else{
+            } else {
                 name.setText("non-cached");
             }
 
@@ -282,7 +286,6 @@ public class MainActivity extends AppCompatActivity {
         final String name;
         final ByteBuffer key;
         final Bitmap bitmap;
-
 
 
         Item(String name, ByteBuffer key, Bitmap bitmap) {
@@ -319,8 +322,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Get images asynchronously
 
-    public class Wrapper
-    {
+    public class Wrapper {
         public String src;
         public ByteBuffer key;
         public Bitmap image;
@@ -346,7 +348,6 @@ public class MainActivity extends AppCompatActivity {
 
                 ByteBuffer key = ConversionUtils.stringToByteBuffer(imageURL);
                 if (imageCache.containsKey(key)) {
-
                     ByteBuffer byteBuffer = imageCache.get(key);
                     bitmap = ConversionUtils.byteBufferToBitmap(byteBuffer);
                     Log.d(TAG, "found image in cache for key : " + imageURL);
@@ -355,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
                     bitmap = BitmapFactory.decodeStream(is);
                     ByteBuffer value = ConversionUtils.bitmapToByteBuffer(bitmap);
                     imageCache.putIfAbsent(key, value);
-                    Log.d(TAG, "put image in cache for key : " + imageURL);
+                    Log.d(TAG, "putting image in cache for key : " + imageURL);
                 }
                 wrapper.key = key;
                 wrapper.image = bitmap;
@@ -368,7 +369,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Wrapper wrapper) {
             // Set the bitmap into ImageView
-            imageCount++;
             images.add(new Image(wrapper.src, wrapper.key, wrapper.image));
             gridViewAdapter.notifyDataSetChanged();
         }

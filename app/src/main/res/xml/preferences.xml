@@ -24,26 +24,27 @@
             android:key="MAX_CACHE_IMAGES"
             android:max="75"
             android:defaultValue="33" />
+        <!--
         <Preference
             android:key="pref_static_field_key2"
             android:selectable="false"
             android:summary="Currently $6 entries"/>
-
+        -->
 
         <org.risney.cache.android.SliderBarPreference
             android:title="@string/size_of_cache"
             android:text="@string/size_of_cache_unit"
-
             android:summary="@string/size_of_cache_summary"
             android:key="MAX_CACHE_KBYTES"
             android:max="5120"
             android:defaultValue="1024" />
+        <!--
         <Preference
             android:key="pref_static_field_key"
             android:selectable="false"
             android:title="Current Size"
             android:summary="Current Size of all entries is $5 Kb"/>
-
+        -->
     </PreferenceCategory>
 
 </PreferenceScreen>
