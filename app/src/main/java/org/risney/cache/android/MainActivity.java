@@ -31,6 +31,7 @@ import org.risney.cache.lib.policies.EvictionPolicy;
 import org.risney.cache.lib.utils.ConversionUtils;
 import org.risney.spotify.R;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageCache imageCache;
     private GridViewAdapter gridViewAdapter;
     private GridView gridView;
-    private List<Item> items = new ArrayList<Item>();
+    private List<Image> images = new ArrayList<Image>();
     private int imageCount;
     private SharedPreferences sharedPref;
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
@@ -71,7 +72,21 @@ public class MainActivity extends AppCompatActivity {
         gridView.setAdapter(gridViewAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+
+
                 Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
+
+                Image image = (Image) v.getTag();
+                imageCache.putIfAbsent(image.getKey(),ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
+                gridViewAdapter.notifyDataSetChanged();
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                image.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] bytes = stream.toByteArray();
+                intent.putExtra("bitmapbytes",bytes);
+
+                Log.d(TAG, "size of image = "+image.getBitmap().getByteCount());
+
                 startActivity(intent);
             }
         });
@@ -128,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                     .maxBytes(MAX_CACHE_BYTES)
                     .maxImages(MAX_CACHE_IMAGES)
                     .build();
-
+            images.clear();
         }
     }
 
@@ -151,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.action_settings:
                 Intent i = new Intent(this, SettingsActivity.class);
@@ -183,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Searching images for '" + query + "'", Toast.LENGTH_LONG).show();
 
                 imageCount = 0;
-                items.clear();
+                images.clear();
 
                 SearchTaskParams taskParams = new SearchTaskParams(query, MAX_SEARCH_RESULTS);
                 new SearchTask().execute(taskParams);
@@ -199,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // Async Search Images Task
+    // Async images search task
     private static class SearchTaskParams {
         String query;
         int maxSearchResults;
@@ -219,12 +235,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return items.size();
+            return images.size();
         }
 
         @Override
         public Object getItem(int i) {
-            return items.get(i);
+            return images.get(i);
         }
 
         @Override
@@ -248,20 +264,30 @@ public class MainActivity extends AppCompatActivity {
             picture = (ImageView) v.getTag(R.id.picture);
             name = (TextView) v.getTag(R.id.text);
 
-            Item item = (Item) getItem(i);
-            picture.setImageBitmap(item.bitmap);
-            name.setText(item.name);
+            Image image = (Image) getItem(i);
+            picture.setImageBitmap(image.getBitmap());
 
+            if (null != imageCache.get(image.getKey())) {
+                name.setText("cached");
+            } else{
+                name.setText("non-cached");
+            }
+
+            v.setTag(image);
             return v;
         }
     }
 
     private class Item {
         final String name;
+        final ByteBuffer key;
         final Bitmap bitmap;
 
-        Item(String name, Bitmap bitmap) {
+
+
+        Item(String name, ByteBuffer key, Bitmap bitmap) {
             this.name = name;
+            this.key = key;
             this.bitmap = bitmap;
         }
     }
@@ -283,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void result) {
+            images.clear();
             for (String src : srcLinks) {
                 new GetImageTask().execute(src);
             }
@@ -292,7 +319,16 @@ public class MainActivity extends AppCompatActivity {
 
     // Get images asynchronously
 
-    private class GetImageTask extends AsyncTask<String, Void, Bitmap> {
+    public class Wrapper
+    {
+        public String src;
+        public ByteBuffer key;
+        public Bitmap image;
+
+    }
+
+
+    private class GetImageTask extends AsyncTask<String, Void, Wrapper> {
 
         @Override
         protected void onPreExecute() {
@@ -300,49 +336,41 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Bitmap doInBackground(String... URL) {
+        protected Wrapper doInBackground(String... URL) {
 
             String imageURL = URL[0];
             Bitmap bitmap = null;
-
+            Wrapper wrapper = new Wrapper();
+            wrapper.src = imageURL;
             try {
 
                 ByteBuffer key = ConversionUtils.stringToByteBuffer(imageURL);
-
                 if (imageCache.containsKey(key)) {
 
                     ByteBuffer byteBuffer = imageCache.get(key);
                     bitmap = ConversionUtils.byteBufferToBitmap(byteBuffer);
                     Log.d(TAG, "found image in cache for key : " + imageURL);
-
                 } else {
-
                     InputStream is = new java.net.URL(imageURL).openStream();
-
                     bitmap = BitmapFactory.decodeStream(is);
                     ByteBuffer value = ConversionUtils.bitmapToByteBuffer(bitmap);
-
                     imageCache.putIfAbsent(key, value);
                     Log.d(TAG, "put image in cache for key : " + imageURL);
                 }
+                wrapper.key = key;
+                wrapper.image = bitmap;
             } catch (Exception e) {
                 Log.e(TAG, "error downloading images " + e.toString());
             }
-            return bitmap;
+            return wrapper;
         }
 
         @Override
-        protected void onPostExecute(Bitmap result) {
+        protected void onPostExecute(Wrapper wrapper) {
             // Set the bitmap into ImageView
             imageCount++;
-            items.add(new Item("Image " + imageCount, result));
-            Log.d(TAG, "finished downloading image " + imageCount);
+            images.add(new Image(wrapper.src, wrapper.key, wrapper.image));
             gridViewAdapter.notifyDataSetChanged();
-
-
-
-
-
         }
     }
 }

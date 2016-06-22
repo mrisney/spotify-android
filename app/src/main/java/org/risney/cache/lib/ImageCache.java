@@ -139,7 +139,7 @@ public class ImageCache implements MapCache {
         Log.d(TAG,"Current bytes in cache :  "+curentByteSize);
         Log.d(TAG,"Number of images in cache :  "+cache.size());
 
-        if ((cache.size() <= maxImages) && (curentByteSize < maxBytes)) {
+        if ((cache.size() < maxImages) && (curentByteSize < maxBytes)) {
             Log.d(TAG,"No eviction");
             return null;
         }
