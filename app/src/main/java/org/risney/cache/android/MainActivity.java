@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    // Setting values
     private int MAX_SEARCH_RESULTS;
     private int MAX_CACHE_IMAGES;
     private int MAX_CACHE_BYTES;
@@ -73,24 +75,34 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
 
-                Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
-
-                Image image = (Image) v.getTag();
-
+                final Image image = (Image) v.getTag();
                 if (null == imageCache.get(image.getKey())) {
                     imageCache.putIfAbsent(image.getKey(), ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
-                    gridViewAdapter.notifyDataSetChanged();
-                }
-                
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                image.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] bytes = stream.toByteArray();
-                intent.putExtra("bitmapbytes", bytes);
+
+                }
 
                 Log.d(TAG, "size of image = " + image.getBitmap().getByteCount());
 
-                startActivity(intent);
+                gridView.startLayoutAnimation();
+                gridViewAdapter.notifyDataSetChanged();
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
+
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        image.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
+                        byte[] bytes = stream.toByteArray();
+                        intent.putExtra("bitmapbytes", bytes);
+                        intent.putExtra("src",image.getSrc());
+                        intent.putExtra("size",image.getSize());
+                        intent.putExtra("cached",image.isCached());
+                        startActivity(intent);
+                    }
+                }, 300);
             }
         });
 
@@ -116,13 +128,11 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         popUp();
-
     }
-
 
     private void reConfigureImageCache(SharedPreferences sharedPreferences, String key) {
         Log.d(TAG, key + " setting changed ...");
-        boolean reconfig = false;
+
         switch (key) {
             case "MAX_SEARCH_RESULTS":
                 MAX_SEARCH_RESULTS = sharedPreferences.getInt("MAX_SEARCH_RESULTS", 33);
@@ -131,29 +141,25 @@ public class MainActivity extends AppCompatActivity {
             case "EVICTION_POLICY":
                 EVICTION_POLICY = sharedPreferences.getString("EVICTION_POLICY", "LRU");
                 Log.d(TAG, "new eviction policy = " + EVICTION_POLICY);
-                reconfig = true;
                 break;
             case "MAX_CACHE_IMAGES":
                 MAX_CACHE_IMAGES = sharedPreferences.getInt("MAX_CACHE_IMAGES", 33);
                 Log.d(TAG, "new max cache images = " + MAX_CACHE_IMAGES);
-                reconfig = true;
                 break;
             case "MAX_CACHE_KBYTES":
                 MAX_CACHE_BYTES = sharedPreferences.getInt("MAX_CACHE_KBYTES", 1024) * 1024;
                 Log.d(TAG, "new max cache size = " + MAX_CACHE_BYTES);
-                reconfig = true;
                 break;
             default:
                 Log.d(TAG, "unknown setting changed");
         }
 
-        if (reconfig) {
-            imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
-                    .maxBytes(MAX_CACHE_BYTES)
-                    .maxImages(MAX_CACHE_IMAGES)
-                    .build();
-            images.clear();
-        }
+        imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
+                .maxBytes(MAX_CACHE_BYTES)
+                .maxImages(MAX_CACHE_IMAGES)
+                .build();
+        images.clear();
+
     }
 
     private void popUp() {
@@ -186,6 +192,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Set up the application bar primarily as a search bar
+     */
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -213,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         };
-
         searchView.setOnQueryTextListener(queryTextListener);
         return super.onCreateOptionsMenu(menu);
     }
@@ -255,9 +265,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
+
             View v = view;
             ImageView picture;
             TextView name;
+
 
             if (v == null) {
                 v = inflater.inflate(R.layout.gridview_item, viewGroup, false);
@@ -279,19 +291,6 @@ public class MainActivity extends AppCompatActivity {
 
             v.setTag(image);
             return v;
-        }
-    }
-
-    private class Item {
-        final String name;
-        final ByteBuffer key;
-        final Bitmap bitmap;
-
-
-        Item(String name, ByteBuffer key, Bitmap bitmap) {
-            this.name = name;
-            this.key = key;
-            this.bitmap = bitmap;
         }
     }
 
@@ -320,16 +319,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // Get images asynchronously
 
-    public class Wrapper {
+    private class Wrapper {
         public String src;
         public ByteBuffer key;
         public Bitmap image;
 
     }
 
-
+    // Get images asynchronously
     private class GetImageTask extends AsyncTask<String, Void, Wrapper> {
 
         @Override

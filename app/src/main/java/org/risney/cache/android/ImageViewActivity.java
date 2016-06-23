@@ -26,6 +26,8 @@ public class ImageViewActivity extends Activity {
         image.setImageBitmap(getScaledBitmap(bitmap));
         Log.d(TAG,"updated image ...");
 
+        String src = getIntent().getStringExtra("src");
+        Log.d(TAG,"src ="+src);
 
     }
 

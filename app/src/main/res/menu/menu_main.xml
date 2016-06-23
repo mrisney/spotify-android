@@ -14,5 +14,4 @@
             android:title="Search"
             appcompat:actionViewClass="android.support.v7.widget.SearchView"
             appcompat:showAsAction="always"/>
-
 </menu>
