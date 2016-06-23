@@ -13,14 +13,17 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -56,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private GridViewAdapter gridViewAdapter;
     private GridView gridView;
     private List<Image> images = new ArrayList<Image>();
-
+    private View mImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,36 +75,52 @@ public class MainActivity extends AppCompatActivity {
         gridView = (GridView) findViewById(R.id.gridview);
         gridView.setAdapter(gridViewAdapter);
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
-
-                final Image image = (Image) v.getTag();
-                if (null == imageCache.get(image.getKey())) {
-                    imageCache.putIfAbsent(image.getKey(), ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
+        gridView.setOnTouchListener(new View.OnTouchListener() {
+            private View touchedView = null;
+            private GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    Log.d(TAG, "onDoubleTap");
+                    Image image = (Image) touchedView.getTag();
+                    if (null == imageCache.get(image.getKey())) {
+                        imageCache.put(image.getKey(), ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
+                    }
+                    gridView.startLayoutAnimation();
+                    new Handler().postDelayed(new Runnable() {
+                        public void run() {
+                            gridViewAdapter.notifyDataSetChanged();
+                        }
+                    }, 500);
+                    return super.onDoubleTap(e);
                 }
 
-                Log.d(TAG, "size of image = " + image.getBitmap().getByteCount());
+                @Override
+                public boolean onSingleTapConfirmed(MotionEvent e) {
+                    Log.d(TAG, "onSingleTap");
 
-                gridView.startLayoutAnimation();
-                gridViewAdapter.notifyDataSetChanged();
+                    Image image = (Image)  touchedView.getTag();
+                    Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    image.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] bytes = stream.toByteArray();
+                    intent.putExtra("bitmapbytes", bytes);
 
-                        Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
+                    intent.putExtra("src", image.getSrc());
+                    intent.putExtra("size", image.getBitmap().getByteCount());
+                    intent.putExtra("cached", image.isCached());
+                    startActivity(intent);
 
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        image.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
-                        byte[] bytes = stream.toByteArray();
-                        intent.putExtra("bitmapbytes", bytes);
-                        intent.putExtra("src",image.getSrc());
-                        intent.putExtra("size",image.getBitmap().getByteCount());
-                        intent.putExtra("cached",image.isCached());
-                        startActivity(intent);
-                    }
-                }, 300);
+                    return super.onSingleTapConfirmed(e);
+                }
+            });
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int position = gridView.pointToPosition((int) event.getX(), (int) event.getY());
+                touchedView = gridView.getChildAt(position);
+                gestureDetector.onTouchEvent(event);
+                return true;
             }
         });
 
@@ -174,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
         toast.setView(layout);
         toast.show();
     }
+
 
     /**
      * React to the user tapping/selecting an options menu item for settings
