@@ -14,7 +14,7 @@
         android:layout_height="match_parent">
         <GridView
             android:id="@+id/gridview"
-            android:layoutAnimation="@anim/layout_grid_fade"
+            android:layoutAnimation="@anim/gridview_fade"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:horizontalSpacing="1dp"

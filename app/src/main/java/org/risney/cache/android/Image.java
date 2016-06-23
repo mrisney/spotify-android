@@ -5,7 +5,14 @@ import android.graphics.Bitmap;
 import java.nio.ByteBuffer;
 
 /**
- * Created by marcrisney on 6/22/16.
+ *
+ * POJO for Image
+ *
+ *
+ * @author marc.risney@gmail.com
+ * @version 1.0
+ * @since 2016-06-20
+ *
  */
 public class Image {
 

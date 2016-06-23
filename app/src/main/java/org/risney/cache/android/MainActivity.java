@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
         gridView = (GridView) findViewById(R.id.gridview);
         gridView.setAdapter(gridViewAdapter);
+
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
@@ -78,8 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 final Image image = (Image) v.getTag();
                 if (null == imageCache.get(image.getKey())) {
                     imageCache.putIfAbsent(image.getKey(), ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
-
-
                 }
 
                 Log.d(TAG, "size of image = " + image.getBitmap().getByteCount());
@@ -98,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                         byte[] bytes = stream.toByteArray();
                         intent.putExtra("bitmapbytes", bytes);
                         intent.putExtra("src",image.getSrc());
-                        intent.putExtra("size",image.getSize());
+                        intent.putExtra("size",image.getBitmap().getByteCount());
                         intent.putExtra("cached",image.isCached());
                         startActivity(intent);
                     }
@@ -177,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * react to the user tapping/selecting an options menu item
+     * React to the user tapping/selecting an options menu item for settings
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -193,9 +192,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Set up the application bar primarily as a search bar
+     * Set up the application bar, primarily as a search bar
+     * using Google Image Search, and JSoup to retrieve an image
      */
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -285,8 +284,10 @@ public class MainActivity extends AppCompatActivity {
 
             if (null != imageCache.get(image.getKey())) {
                 name.setText("cached");
+                image.setCached(true);
             } else {
                 name.setText("non-cached");
+                image.setCached(false);
             }
 
             v.setTag(image);

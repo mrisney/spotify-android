@@ -1,14 +1,29 @@
 package org.risney.cache.android;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.risney.spotify.R;
+
+/**
+ *
+ * Simple Image View Activity, shows details of image, src, size in bytes
+ *
+ *
+ * @author marc.risney@gmail.com
+ * @version 1.0
+ * @since 2016-06-20
+ *
+ */
+
 
 public class ImageViewActivity extends Activity {
     private static final String TAG = ImageViewActivity.class.getSimpleName();
@@ -28,6 +43,25 @@ public class ImageViewActivity extends Activity {
 
         String src = getIntent().getStringExtra("src");
         Log.d(TAG,"src ="+src);
+
+
+
+        Boolean cached = getIntent().getBooleanExtra("cached",false);
+        Log.d(TAG,"cached ="+cached);
+
+
+        TextView textView = (TextView) findViewById(R.id.text);
+        if (src != null) {
+            textView.setText(src);
+        }
+
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String evictionPolicy = sharedPref.getString("EVICTION_POLICY", "LRU");
+
+
+
 
     }
 
