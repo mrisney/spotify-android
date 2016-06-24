@@ -47,10 +47,7 @@ public class CacheEntry {
     public int getHitCount(){
         return hitCount.intValue();
     }
-    public void resetHits(){
-        hitCount.set(0);
-        lastHitDate = entryDate;
-    }
+
     public void hit() {
         hitCount.getAndIncrement();
         lastHitDate = System.currentTimeMillis();

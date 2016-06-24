@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
         setTitle("");
 
+        TextView textView = (TextView) findViewById(R.id.text);
+        textView.setText("test");
         gridViewAdapter = new GridViewAdapter(this);
 
         gridView = (GridView) findViewById(R.id.gridview);
@@ -99,11 +101,14 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
-                    Log.d(TAG, "onSingleTap");
                     Image image = (Image) touchedView.getTag();
+
+                    Log.d(TAG, "single tapped image id "+image.getId());
                     if (null == imageCache.get(image.getKey())) {
                         Toast.makeText(getApplicationContext(), "adding image to cache", Toast.LENGTH_SHORT).show();
                         imageCache.put(image.getKey(), ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
+                        syncImages();
+
                     }
                     gridView.startLayoutAnimation();
                     new Handler().postDelayed(new Runnable() {
@@ -260,6 +265,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void syncImages(){
+        for (Image image :images){
+            if (imageCache.containsKey(image.getKey())){
+                image.setCached(true);
+            } else{
+                image.setCached(false);
+            }
+        }
+    }
+
     private class GridViewAdapter extends BaseAdapter {
         private LayoutInflater inflater;
 
@@ -302,18 +317,20 @@ public class MainActivity extends AppCompatActivity {
 
             picture = (ImageView) v.getTag(R.id.picture);
             name = (TextView) v.getTag(R.id.text);
+            syncImages();
             Image image = (Image) getItem(i);
+            Log.d(TAG, "preparing  image text for  image id "+image.getId());
+
+
             String fileSize = android.text.format.Formatter.formatFileSize(MainActivity.this,image.getBitmap().getByteCount());
             picture.setImageBitmap(image.getBitmap());
 
-            if (imageCache.containsKey(image.getKey())) {
+            if (image.isCached()) {
                 name.setText("cached  \n" + fileSize +"\n");
-                image.setCached(true);
+
             } else {
                 name.setText("non-cached \n" + fileSize  +"\n ");
-                image.setCached(false);
             }
-
             v.setTag(image);
             return v;
         }
@@ -392,9 +409,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Wrapper wrapper) {
-            // Set the bitmap into ImageView
-            Log.d(TAG,"image is cached : "+wrapper.cached);
-            images.add(new Image(wrapper.src, wrapper.key, wrapper.image));
+            boolean cached = imageCache.containsKey(wrapper.key) ? true : false;
+            images.add(new Image(images.size()+1,wrapper.src, wrapper.key, wrapper.image, cached));
             gridViewAdapter.notifyDataSetChanged();
         }
     }

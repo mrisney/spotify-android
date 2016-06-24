@@ -3,7 +3,6 @@ package org.risney.cache.android;
 import android.graphics.Bitmap;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * POJO for Image
@@ -13,22 +12,23 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 2016-06-20
  */
 public class Image {
-    private static final AtomicLong ID_GENERATOR = new AtomicLong(0L);
-    private final long id;
+
+    private int id;
     private String src;
     private int size;
     private boolean cached;
     private ByteBuffer key;
     private Bitmap bitmap;
 
-    public Image(String src, ByteBuffer key, Bitmap bitmap) {
-        id = ID_GENERATOR.getAndIncrement();
+    public Image(int id, String src, ByteBuffer key, Bitmap bitmap, boolean cached) {
+        this.id = id;
         this.src = src;
         this.key = key;
         this.bitmap = bitmap;
+        this.cached = cached;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 

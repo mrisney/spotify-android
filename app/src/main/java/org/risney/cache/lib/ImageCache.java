@@ -148,7 +148,7 @@ public class ImageCache implements MapCache {
         cache.remove(valueToEvict);
         curentByteSize = (curentByteSize - entryToEvict.getSize());
 
-        Log.d(TAG,"Evicting key "+ entryToEvict.getId() +" from cache");
+        Log.d(TAG,"Evicting entry with last id "+entryToEvict.getId() +" from cache");
         Log.d(TAG,"Number of images now in cache : "+ cache.size());
 
         return entryToEvict;

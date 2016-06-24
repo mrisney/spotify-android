@@ -51,7 +51,7 @@ public class ImageViewActivity extends Activity {
         }
 */
 
-        TextView textView2 = (TextView) findViewById(R.id.text);
+        TextView textView = (TextView) findViewById(R.id.text);
         StringBuffer sb = new StringBuffer();
 
         Boolean cached = getIntent().getBooleanExtra("cached",false);
@@ -64,7 +64,7 @@ public class ImageViewActivity extends Activity {
         sb.append("\n");
         sb.append("Cached = "+cached);
 
-        textView2.setText(sb.toString());
+        textView.setText(sb.toString());
 
 
 
