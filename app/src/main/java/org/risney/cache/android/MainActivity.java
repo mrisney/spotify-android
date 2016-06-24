@@ -22,8 +22,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -39,6 +37,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GridViewAdapter gridViewAdapter;
     private GridView gridView;
-    private List<Image> images = new ArrayList<Image>();
+    private List<Image> images = new LinkedList<Image>();
     private View mImageView;
 
     @Override
@@ -80,25 +79,8 @@ public class MainActivity extends AppCompatActivity {
             private GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
-                    Log.d(TAG, "onDoubleTap");
+
                     Image image = (Image) touchedView.getTag();
-                    if (null == imageCache.get(image.getKey())) {
-                        imageCache.put(image.getKey(), ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
-                    }
-                    gridView.startLayoutAnimation();
-                    new Handler().postDelayed(new Runnable() {
-                        public void run() {
-                            gridViewAdapter.notifyDataSetChanged();
-                        }
-                    }, 500);
-                    return super.onDoubleTap(e);
-                }
-
-                @Override
-                public boolean onSingleTapConfirmed(MotionEvent e) {
-                    Log.d(TAG, "onSingleTap");
-
-                    Image image = (Image)  touchedView.getTag();
                     Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
 
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -111,6 +93,24 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("cached", image.isCached());
                     startActivity(intent);
 
+
+                    return super.onDoubleTap(e);
+                }
+
+                @Override
+                public boolean onSingleTapConfirmed(MotionEvent e) {
+                    Log.d(TAG, "onSingleTap");
+                    Image image = (Image) touchedView.getTag();
+                    if (null == imageCache.get(image.getKey())) {
+                        Toast.makeText(getApplicationContext(), "adding image to cache", Toast.LENGTH_SHORT).show();
+                        imageCache.put(image.getKey(), ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
+                    }
+                    gridView.startLayoutAnimation();
+                    new Handler().postDelayed(new Runnable() {
+                        public void run() {
+                            gridViewAdapter.notifyDataSetChanged();
+                        }
+                    }, 500);
                     return super.onSingleTapConfirmed(e);
                 }
             });
@@ -237,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 Toast.makeText(getApplicationContext(), "Searching images for '" + query + "'", Toast.LENGTH_LONG).show();
                 images.clear();
+                //imageCache.clear();
                 SearchTaskParams taskParams = new SearchTaskParams(query, MAX_SEARCH_RESULTS);
                 new SearchTask().execute(taskParams);
                 searchView.clearFocus();
@@ -278,8 +279,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public long getItemId(int i) {
-            //return items.get(i).drawableId;
-            return 0;
+            try {
+                return images.get(i).getId();
+            } catch (Exception e) {
+                return 0;
+            }
         }
 
         @Override
@@ -298,15 +302,15 @@ public class MainActivity extends AppCompatActivity {
 
             picture = (ImageView) v.getTag(R.id.picture);
             name = (TextView) v.getTag(R.id.text);
-
             Image image = (Image) getItem(i);
+            String fileSize = android.text.format.Formatter.formatFileSize(MainActivity.this,image.getBitmap().getByteCount());
             picture.setImageBitmap(image.getBitmap());
 
-            if (null != imageCache.get(image.getKey())) {
-                name.setText("cached");
+            if (imageCache.containsKey(image.getKey())) {
+                name.setText("cached  \n" + fileSize +"\n");
                 image.setCached(true);
             } else {
-                name.setText("non-cached");
+                name.setText("non-cached \n" + fileSize  +"\n ");
                 image.setCached(false);
             }
 
@@ -345,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
         public String src;
         public ByteBuffer key;
         public Bitmap image;
-
+        public boolean cached;
     }
 
     // Get images asynchronously
@@ -363,18 +367,19 @@ public class MainActivity extends AppCompatActivity {
             Bitmap bitmap = null;
             Wrapper wrapper = new Wrapper();
             wrapper.src = imageURL;
+
             try {
 
                 ByteBuffer key = ConversionUtils.stringToByteBuffer(imageURL);
                 if (imageCache.containsKey(key)) {
                     ByteBuffer byteBuffer = imageCache.get(key);
                     bitmap = ConversionUtils.byteBufferToBitmap(byteBuffer);
-                    Log.d(TAG, "found image in cache for key : " + imageURL);
+
                 } else {
                     InputStream is = new java.net.URL(imageURL).openStream();
                     bitmap = BitmapFactory.decodeStream(is);
                     ByteBuffer value = ConversionUtils.bitmapToByteBuffer(bitmap);
-                    imageCache.putIfAbsent(key, value);
+                    imageCache.put(key, value);
                     Log.d(TAG, "putting image in cache for key : " + imageURL);
                 }
                 wrapper.key = key;
@@ -388,6 +393,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Wrapper wrapper) {
             // Set the bitmap into ImageView
+            Log.d(TAG,"image is cached : "+wrapper.cached);
             images.add(new Image(wrapper.src, wrapper.key, wrapper.image));
             gridViewAdapter.notifyDataSetChanged();
         }

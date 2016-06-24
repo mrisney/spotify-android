@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.apache.commons.io.FileUtils;
 import org.risney.spotify.R;
 
 /**
@@ -41,19 +42,30 @@ public class ImageViewActivity extends Activity {
         image.setImageBitmap(getScaledBitmap(bitmap));
         Log.d(TAG,"updated image ...");
 
+/*
+        TextView textView = (TextView) findViewById(R.id.text);
         String src = getIntent().getStringExtra("src");
-        Log.d(TAG,"src ="+src);
+        if (src != null) {
+            String html = "Link to Google Image Search result <a href=\"" +src+"\">here</a>";
+            textView.setText(Html.fromHtml(html));
+        }
+*/
 
-
+        TextView textView2 = (TextView) findViewById(R.id.text);
+        StringBuffer sb = new StringBuffer();
 
         Boolean cached = getIntent().getBooleanExtra("cached",false);
-        Log.d(TAG,"cached ="+cached);
+        Log.d(TAG,"cached = "+cached);
 
 
-        TextView textView = (TextView) findViewById(R.id.text);
-        if (src != null) {
-            textView.setText(src);
-        }
+        int byteSize = getIntent().getIntExtra("size",0);
+        String imageSize = FileUtils.byteCountToDisplaySize(byteSize);
+        sb.append(imageSize);
+        sb.append("\n");
+        sb.append("Cached = "+cached);
+
+        textView2.setText(sb.toString());
+
 
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);

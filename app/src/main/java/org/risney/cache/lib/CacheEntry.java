@@ -40,10 +40,17 @@ public class CacheEntry {
         return lastHitDate;
     }
 
-    public int getHitCount() {
-        return hitCount.get();
+    public int getHits() {
+        return hitCount.intValue();
     }
 
+    public int getHitCount(){
+        return hitCount.intValue();
+    }
+    public void resetHits(){
+        hitCount.set(0);
+        lastHitDate = entryDate;
+    }
     public void hit() {
         hitCount.getAndIncrement();
         lastHitDate = System.currentTimeMillis();
@@ -59,39 +66,5 @@ public class CacheEntry {
 
     public int getSize() {
         return size;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (entryDate ^ (entryDate >>> 32));
-        result = prime * result + ((hitCount == null) ? 0 : hitCount.hashCode());
-        result = prime * result + (int) (id ^ (id >>> 32));
-        result = prime * result + (int) (lastHitDate ^ (lastHitDate >>> 32));
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        CacheEntry other = (CacheEntry) obj;
-        if (entryDate != other.entryDate)
-            return false;
-        if (hitCount == null) {
-            if (other.hitCount != null)
-                return false;
-        } else if (!hitCount.equals(other.hitCount))
-            return false;
-        if (id != other.id)
-            return false;
-        if (lastHitDate != other.lastHitDate)
-            return false;
-        return true;
     }
 }

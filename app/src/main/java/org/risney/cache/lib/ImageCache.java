@@ -3,7 +3,6 @@ package org.risney.cache.lib;
 import android.util.Log;
 
 import org.risney.cache.lib.policies.EvictionPolicy;
-import org.risney.cache.lib.utils.ConversionUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -139,7 +138,7 @@ public class ImageCache implements MapCache {
         Log.d(TAG,"Current bytes in cache :  "+curentByteSize);
         Log.d(TAG,"Number of images in cache :  "+cache.size());
 
-        if ((cache.size() < maxImages) && (curentByteSize < maxBytes)) {
+        if ((cache.size() <= maxImages) && (curentByteSize < maxBytes)) {
             Log.d(TAG,"No eviction");
             return null;
         }
@@ -149,7 +148,7 @@ public class ImageCache implements MapCache {
         cache.remove(valueToEvict);
         curentByteSize = (curentByteSize - entryToEvict.getSize());
 
-        Log.d(TAG,"Evicting key "+ ConversionUtils.byteBufferToString(valueToEvict) +" from cache");
+        Log.d(TAG,"Evicting key "+ entryToEvict.getId() +" from cache");
         Log.d(TAG,"Number of images now in cache : "+ cache.size());
 
         return entryToEvict;

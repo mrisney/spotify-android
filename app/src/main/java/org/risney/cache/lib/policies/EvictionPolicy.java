@@ -98,9 +98,8 @@ public enum EvictionPolicy {
             if (o1.equals(o2)) {
                 return 0;
             }
-
-            final int sizeComparison = Long.compare(o2.getSize(), o1.getSize());
-            return (sizeComparison == 0 ? Long.compare(o2.getSize(), o1.getSize()) : sizeComparison);
+            final int sizeComparison = Long.compare(o1.getSize(), o2.getSize());
+            return (sizeComparison == 0 ? Long.compare(o1.getSize(), o2.getSize()) : sizeComparison);
         }
     }
 

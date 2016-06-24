@@ -47,7 +47,6 @@ public class MapCacheEntry extends CacheEntry {
             final MapCacheEntry that = ((MapCacheEntry) obj);
             return key.equals(that.key) && value.equals(that.value);
         }
-
         return false;
     }
 }
