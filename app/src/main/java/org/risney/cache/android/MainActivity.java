@@ -397,6 +397,7 @@ public class MainActivity extends AppCompatActivity {
                 if (imageCache.containsKey(key)) {
                     ByteBuffer byteBuffer = imageCache.get(key);
                     bitmap = ConversionUtils.byteBufferToBitmap(byteBuffer);
+                    wrapper.contentLength = byteBuffer.capacity();
 
                 } else {
                     java.net.URL imageContent =  new java.net.URL(imageURL);
