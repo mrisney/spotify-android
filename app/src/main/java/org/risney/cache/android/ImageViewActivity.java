@@ -11,7 +11,6 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.apache.commons.io.FileUtils;
 import org.risney.spotify.R;
 
 /**
@@ -34,13 +33,13 @@ public class ImageViewActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_view);
 
-        byte[] bytes = getIntent().getByteArrayExtra("bitmapbytes");
+        byte[] bytes = getIntent().getByteArrayExtra("IMAGE_BYTES");
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
         ImageView image = (ImageView) findViewById(R.id.imageView);
 
         image.setImageBitmap(getScaledBitmap(bitmap));
-        Log.d(TAG,"updated image ...");
+
 
 /*
         TextView textView = (TextView) findViewById(R.id.text);
@@ -57,9 +56,8 @@ public class ImageViewActivity extends Activity {
         Boolean cached = getIntent().getBooleanExtra("cached",false);
         Log.d(TAG,"cached = "+cached);
 
+        String imageSize =  android.text.format.Formatter.formatFileSize(ImageViewActivity.this, bytes.length);
 
-        int byteSize = getIntent().getIntExtra("size",0);
-        String imageSize = FileUtils.byteCountToDisplaySize(byteSize);
         sb.append(imageSize);
         sb.append("\n");
         sb.append("Cached = "+cached);

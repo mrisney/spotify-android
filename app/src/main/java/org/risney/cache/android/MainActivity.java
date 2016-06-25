@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -82,18 +81,30 @@ public class MainActivity extends AppCompatActivity {
                 public boolean onDoubleTap(MotionEvent e) {
 
                     Image image = (Image) touchedView.getTag();
-                    Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
+                    Log.d(TAG, "Double tapped image id " + image.getId());
+                    try {
+                        Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
 
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    image.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] bytes = stream.toByteArray();
-                    intent.putExtra("bitmapbytes", bytes);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-                    intent.putExtra("src", image.getSrc());
-                    intent.putExtra("size", image.getBitmap().getByteCount());
-                    intent.putExtra("cached", image.isCached());
-                    startActivity(intent);
+                        if (image.isCached()) {
+                            ByteBuffer value = imageCache.get(image.getKey());
+                            baos.write(value.array());
+                        } else {
+                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                            image.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
+                            byte[] bytes = stream.toByteArray();
+                            baos.write(bytes);
+                        }
+                        intent.putExtra("IMAGE_BYTES", baos.toByteArray());
+                        intent.putExtra("src", image.getSrc());
+                        intent.putExtra("size", baos.size());
+                        intent.putExtra("cached", image.isCached());
+                        startActivity(intent);
 
+                    } catch (Exception ex) {
+
+                    }
 
                     return super.onDoubleTap(e);
                 }
@@ -101,12 +112,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     Image image = (Image) touchedView.getTag();
-
-                    Log.d(TAG, "single tapped image id "+image.getId());
+                    Log.d(TAG, "Single tapped image id " + image.getId());
                     if (null == imageCache.get(image.getKey())) {
-                        Toast.makeText(getApplicationContext(), "adding image to cache", Toast.LENGTH_SHORT).show();
-                        imageCache.put(image.getKey(), ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
-
+                        Toast.makeText(getApplicationContext(), "Adding image to cache", Toast.LENGTH_SHORT).show();
+                        imageCache.put(image.getKey(), image.getValue());
                         // since not downloading images, but adding a bitmap into cache, update the image cache info
                         syncImageCacheInfo();
 
@@ -254,9 +263,24 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     *
+     */
+    private void syncImageCacheInfo() {
+        for (Image image : images) {
+            if (imageCache.containsKey(image.getKey())) {
+                image.setCached(true);
+            } else {
+                image.setCached(false);
+            }
+        }
+        String cacheSize = android.text.format.Formatter.formatFileSize(MainActivity.this, imageCache.getTotalCacheSize());
+        long entries = imageCache.getEntryCount();
+        cacheInfoTextView.setText("current cache size : " + cacheSize + ", entries : " + entries);
+    }
 
     /**
-     *Async images search task
+     * Async images search task
      */
     private static class SearchTaskParams {
         String query;
@@ -266,22 +290,6 @@ public class MainActivity extends AppCompatActivity {
             this.query = query;
             this.maxSearchResults = maxSearchResults;
         }
-    }
-
-    /**
-     *
-     */
-    private void syncImageCacheInfo(){
-        for (Image image :images){
-            if (imageCache.containsKey(image.getKey())){
-                image.setCached(true);
-            } else{
-                image.setCached(false);
-            }
-        }
-        String cacheSize =  android.text.format.Formatter.formatFileSize(MainActivity.this,imageCache.getTotalCacheSize());
-        long entries = imageCache.getEntryCount();
-        cacheInfoTextView.setText("current cache size : "+cacheSize +", entries : "+entries);
     }
 
     private class GridViewAdapter extends BaseAdapter {
@@ -323,18 +331,17 @@ public class MainActivity extends AppCompatActivity {
                 v.setTag(R.id.text, v.findViewById(R.id.text));
             }
 
-
             // before preparing view, do an update on which images are cached, and which are not
             syncImageCacheInfo();
+
             Image image = (Image) getItem(i);
             name = (TextView) v.getTag(R.id.text);
-            String fileSize = android.text.format.Formatter.formatFileSize(MainActivity.this,image.getByteCount());
+            String fileSize = android.text.format.Formatter.formatFileSize(MainActivity.this, image.getByteCount());
             if (image.isCached()) {
-                name.setText("cached  \n" + fileSize +"\n");
+                name.setText("cached \n" + fileSize);
             } else {
-                name.setText("non-cached \n" + fileSize  +"\n ");
+                name.setText("non-cached \n" + fileSize);
             }
-
             picture = (ImageView) v.getTag(R.id.picture);
             picture.setImageBitmap(image.getBitmap());
             v.setTag(image);
@@ -364,13 +371,13 @@ public class MainActivity extends AppCompatActivity {
                 new GetImageTask().execute(src);
             }
         }
-
     }
 
 
     private class Wrapper {
         public String src;
         public ByteBuffer key;
+        public ByteBuffer value;
         public Bitmap image;
         public int contentLength;
     }
@@ -398,23 +405,26 @@ public class MainActivity extends AppCompatActivity {
                     ByteBuffer byteBuffer = imageCache.get(key);
                     bitmap = ConversionUtils.byteBufferToBitmap(byteBuffer);
                     wrapper.contentLength = byteBuffer.capacity();
+                    wrapper.value = byteBuffer;
+                    Log.d(TAG, "Retrieved image from cache for key : " + imageURL);
 
                 } else {
-                    java.net.URL imageContent =  new java.net.URL(imageURL);
+                    java.net.URL imageContent = new java.net.URL(imageURL);
                     wrapper.contentLength = imageContent.openConnection().getContentLength();
 
                     InputStream is = imageContent.openStream();
                     byte[] bytes = IOUtils.toByteArray(is);
-                    ByteBuffer value  = ByteBuffer.wrap(bytes);
 
-                    bitmap = ConversionUtils.byteBufferToBitmap(value);
-                    imageCache.put(key, value);
-                    Log.d(TAG, "putting image in cache for key : " + imageURL);
+                    wrapper.value = ByteBuffer.wrap(bytes);
+                    bitmap = ConversionUtils.byteBufferToBitmap(wrapper.value);
+
+                    imageCache.put(key, wrapper.value);
+                    Log.d(TAG, "Putting image in cache for key : " + imageURL);
                 }
                 wrapper.key = key;
                 wrapper.image = bitmap;
             } catch (Exception e) {
-                Log.e(TAG, "error downloading images " + e.toString());
+                Log.e(TAG, "Error downloading images " + e.toString());
             }
             return wrapper;
         }
@@ -422,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Wrapper wrapper) {
             boolean cached = imageCache.containsKey(wrapper.key) ? true : false;
-            images.add(new Image(images.size()+1,wrapper.src, wrapper.key, wrapper.image, cached, wrapper.contentLength));
+            images.add(new Image(images.size() + 1, wrapper.src, wrapper.key, wrapper.value, wrapper.image, cached, wrapper.contentLength));
             gridViewAdapter.notifyDataSetChanged();
         }
     }

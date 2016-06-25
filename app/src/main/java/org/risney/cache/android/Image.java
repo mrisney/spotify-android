@@ -18,12 +18,14 @@ public class Image {
     private int byteCount;
     private boolean cached;
     private ByteBuffer key;
+    private ByteBuffer value;
     private Bitmap bitmap;
 
-    public Image(int id, String src, ByteBuffer key, Bitmap bitmap, boolean cached,int byteCount ) {
+    public Image(int id, String src, ByteBuffer key,ByteBuffer value, Bitmap bitmap, boolean cached,int byteCount ) {
         this.id = id;
         this.src = src;
         this.key = key;
+        this.value = value;
         this.bitmap = bitmap;
         this.cached = cached;
         this.byteCount = byteCount;
@@ -63,6 +65,14 @@ public class Image {
 
     public void setKey(ByteBuffer key) {
         this.key = key;
+    }
+
+    public ByteBuffer getValue() {
+        return value;
+    }
+
+    public void setValue(ByteBuffer value) {
+        this.value = value;
     }
 
     public Bitmap getBitmap() {

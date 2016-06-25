@@ -48,6 +48,7 @@ public class ImageCache implements MapCache {
     private final Lock writeLock;
     protected int maxImages = DEFAULT_MAX_IMAGES; // optional
     protected int maxBytes = DEFAULT_MAX_BYTES; // optional
+
     /**
      * The total size of bytes stored in cache.
      */
@@ -68,6 +69,8 @@ public class ImageCache implements MapCache {
         this.readLock = rwLock.readLock();
         this.writeLock = rwLock.writeLock();
         this.inverseCacheMap = new ConcurrentSkipListMap(evictionPolicy.getComparator());
+        this.totalCacheSize = 0;
+
     }
 
     public EvictionPolicy getEvictionPolicy() {
@@ -94,7 +97,7 @@ public class ImageCache implements MapCache {
      * The total size of bytes stored in cache.
      */
     public long getTotalCacheSize() {
-        readLock.lock();
+      /*  readLock.lock();
         try {
             long cacheTotalSize = new Long(0);
             for (Map.Entry entry : cache.entrySet()) {
@@ -106,6 +109,8 @@ public class ImageCache implements MapCache {
         } finally {
             readLock.unlock();
         }
+        */
+        return totalCacheSize;
     }
 
     public synchronized long getEntryCount() {
@@ -114,6 +119,7 @@ public class ImageCache implements MapCache {
 
     public synchronized void clear() {
         cache.clear();
+        totalCacheSize = 0;
     }
 
     /**
@@ -124,20 +130,22 @@ public class ImageCache implements MapCache {
 
     private MapCacheEntry evict() {
 
-        Log.d(TAG, "Current bytes in cache :  " + totalCacheSize);
+        Log.d(TAG, "Current bytes in cache :  " + FileUtils.byteCountToDisplaySize(totalCacheSize));
         Log.d(TAG, "Number of images in cache :  " + cache.size());
 
-        if ((cache.size() <= maxImages) && (getTotalCacheSize() < maxBytes)) {
+        if ((cache.size() <= maxImages) && (totalCacheSize < maxBytes)) {
             Log.d(TAG, "No eviction");
             return null;
         }
 
         final MapCacheEntry entryToEvict = inverseCacheMap.firstKey();
         final ByteBuffer valueToEvict = inverseCacheMap.remove(entryToEvict);
+        totalCacheSize -= cache.get(valueToEvict).getValue().capacity();
         cache.remove(valueToEvict);
 
         Log.d(TAG, "Evicting entry with last id " + entryToEvict.getId() + " from cache");
         Log.d(TAG, "Number of images now in cache : " + cache.size());
+        Log.d(TAG, "Bytes in cache : " + FileUtils.byteCountToDisplaySize(totalCacheSize));
 
         return entryToEvict;
     }
@@ -159,7 +167,10 @@ public class ImageCache implements MapCache {
                 cache.put(key, newEntry);
                 inverseCacheMap.put(newEntry, key);
 
+                // Set the size
+                totalCacheSize += value.capacity();
                 newEntry.setSize(value.capacity());
+
                 if (evicted == null) {
                     return new MapPutResult(true, key, value, null, null, null);
                 } else {
@@ -172,8 +183,8 @@ public class ImageCache implements MapCache {
             inverseCacheMap.remove(entry);
             entry.hit();
 
-            // Set the size
             inverseCacheMap.put(entry, key);
+
             return new MapPutResult(false, key, value, entry.getValue(), null, null);
         } finally {
             writeLock.unlock();
@@ -191,13 +202,15 @@ public class ImageCache implements MapCache {
         writeLock.lock();
         try {
 
-            String fileSize = FileUtils.byteCountToDisplaySize(value.array().length);
-            Log.d(TAG, "size of entry put into cache " + fileSize);
+            String fileSize = FileUtils.byteCountToDisplaySize(value.capacity());
+            Log.d(TAG, "Size of entry put into cache " + fileSize);
             // evict if we need to in order to make room for a new entry.
 
             final MapCacheEntry entry = new MapCacheEntry(key, value);
             final MapCacheEntry existing = cache.put(key, entry);
 
+            // Set the size
+            totalCacheSize += value.capacity();
             entry.setSize(key.capacity() + value.capacity());
 
             final MapCacheEntry evicted = evict();
@@ -206,6 +219,9 @@ public class ImageCache implements MapCache {
             final ByteBuffer existingValue = (existing == null) ? null : existing.getValue();
             final ByteBuffer evictedKey = (evicted == null) ? null : evicted.getKey();
             final ByteBuffer evictedValue = (evicted == null) ? null : evicted.getValue();
+
+
+
             return new MapPutResult(true, key, value, existingValue, evictedKey, evictedValue);
         } finally {
             writeLock.unlock();
@@ -270,6 +286,8 @@ public class ImageCache implements MapCache {
                 return null;
             }
             inverseCacheMap.remove(entry);
+            // Set the size
+            totalCacheSize -= entry.getValue().capacity();
             return entry.getValue();
         } finally {
             writeLock.unlock();
