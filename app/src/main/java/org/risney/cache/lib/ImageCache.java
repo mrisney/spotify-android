@@ -24,9 +24,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <b>DEFAULT_MAX_BYTES : 1024 * 1024 (1 megabyte)</b>
  * <p/>
  *
- * <code>
+ *<pre>
+ *<code>
  *
- *      // set the initial size to 5 images, and 50KB
+ *     {@literal@} // set the initial size to 5 images, and 50KB
  *      final int MAX_IMAGES = 5;
  *      final int MAX_BYTES = 50000;
  *
@@ -47,6 +48,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *      ...
  *
  * </code>
+ * </pre>
+ *
  * The standard "put" and "get" methods are available. "putIfAbsent" is present, as it allows a hitcount to be recorded
  * on the CacheEntry. for Least Recently Used LRU - Cache Eviction, that is a factor in determing which CacheEntry should be
  * evicted in event of threshold breach.
