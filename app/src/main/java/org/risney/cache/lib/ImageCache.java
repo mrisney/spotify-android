@@ -231,8 +231,6 @@ public class ImageCache implements MapCache {
             final ByteBuffer evictedKey = (evicted == null) ? null : evicted.getKey();
             final ByteBuffer evictedValue = (evicted == null) ? null : evicted.getValue();
 
-
-
             return new MapPutResult(true, key, value, existingValue, evictedKey, evictedValue);
         } finally {
             writeLock.unlock();
