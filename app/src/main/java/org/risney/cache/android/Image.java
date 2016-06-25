@@ -15,17 +15,18 @@ public class Image {
 
     private int id;
     private String src;
-    private int size;
+    private int byteCount;
     private boolean cached;
     private ByteBuffer key;
     private Bitmap bitmap;
 
-    public Image(int id, String src, ByteBuffer key, Bitmap bitmap, boolean cached) {
+    public Image(int id, String src, ByteBuffer key, Bitmap bitmap, boolean cached,int byteCount ) {
         this.id = id;
         this.src = src;
         this.key = key;
         this.bitmap = bitmap;
         this.cached = cached;
+        this.byteCount = byteCount;
     }
 
     public int getId() {
@@ -40,12 +41,12 @@ public class Image {
         this.src = src;
     }
 
-    public int getSize() {
-        return size;
+    public int getByteCount() {
+        return byteCount;
     }
 
-    public void setSize(int size) {
-        this.size = size;
+    public void setByteCount(int byteCount) {
+        this.byteCount = byteCount;
     }
 
     public boolean isCached() {

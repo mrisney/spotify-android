@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -81,6 +82,43 @@ public class ConversionUtils {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, buffer);
 
         return ByteBuffer.wrap(buffer.toByteArray());
+    }
+
+    public static int getByteCount(ByteBuffer byteBuffer) {
+        int len = 0;
+        final ByteBuffer buffer;
+        if (byteBuffer.hasArray()) {
+            final byte[] array = byteBuffer.array();
+            len = array.length;
+        }
+        return len;
+    }
+
+   public static final int sizeOf(Object object) throws IOException {
+
+        if (object == null)
+            return -1;
+
+        // Special output stream use to write the content
+        // of an output stream to an internal byte array.
+        ByteArrayOutputStream byteArrayOutputStream =
+                new ByteArrayOutputStream();
+
+        // Output stream that can write object
+        ObjectOutputStream objectOutputStream =
+                new ObjectOutputStream(byteArrayOutputStream);
+
+        // Write object and close the output stream
+        objectOutputStream.writeObject(object);
+        objectOutputStream.flush();
+        objectOutputStream.close();
+
+        // Get the byte array
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+
+        // TODO can the toByteArray() method return a
+        // null array ?
+        return byteArray == null ? 0 : byteArray.length;
     }
 
 }

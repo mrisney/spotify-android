@@ -5,8 +5,8 @@
             android:title="@string/max_search_results"
             android:summary="@string/max_search_results_summary"
             android:key="MAX_SEARCH_RESULTS"
-            android:max="100"
-            android:defaultValue="33" />
+            android:max="50"
+            android:defaultValue="25" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_cache_settings">
@@ -22,8 +22,8 @@
             android:title="@string/number_of_images"
             android:summary="@string/number_of_images_summary"
             android:key="MAX_CACHE_IMAGES"
-            android:max="75"
-            android:defaultValue="33" />
+            android:max="50"
+            android:defaultValue="24" />
         <!--
         <Preference
             android:key="pref_static_field_key2"
@@ -36,8 +36,8 @@
             android:text="@string/size_of_cache_unit"
             android:summary="@string/size_of_cache_summary"
             android:key="MAX_CACHE_KBYTES"
-            android:max="5120"
-            android:defaultValue="1024" />
+            android:max="1024"
+            android:defaultValue="100" />
         <!--
         <Preference
             android:key="pref_static_field_key"

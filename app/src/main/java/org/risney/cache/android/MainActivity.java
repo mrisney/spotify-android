@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.io.IOUtils;
 import org.risney.cache.lib.ImageCache;
 import org.risney.cache.lib.policies.EvictionPolicy;
 import org.risney.cache.lib.utils.ConversionUtils;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private GridViewAdapter gridViewAdapter;
     private GridView gridView;
     private List<Image> images = new LinkedList<Image>();
-    private View mImageView;
+    private TextView cacheInfoTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +69,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setTitle("");
-
-        TextView textView = (TextView) findViewById(R.id.text);
-        textView.setText("test");
+        cacheInfoTextView = (TextView) findViewById(R.id.text);
         gridViewAdapter = new GridViewAdapter(this);
 
         gridView = (GridView) findViewById(R.id.gridview);
@@ -107,7 +106,9 @@ public class MainActivity extends AppCompatActivity {
                     if (null == imageCache.get(image.getKey())) {
                         Toast.makeText(getApplicationContext(), "adding image to cache", Toast.LENGTH_SHORT).show();
                         imageCache.put(image.getKey(), ConversionUtils.bitmapToByteBuffer(image.getBitmap()));
-                        syncImages();
+
+                        // since not downloading images, but adding a bitmap into cache, update the image cache info
+                        syncImageCacheInfo();
 
                     }
                     gridView.startLayoutAnimation();
@@ -254,7 +255,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // Async images search task
+    /**
+     *Async images search task
+     */
     private static class SearchTaskParams {
         String query;
         int maxSearchResults;
@@ -265,7 +268,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void syncImages(){
+    /**
+     *
+     */
+    private void syncImageCacheInfo(){
         for (Image image :images){
             if (imageCache.containsKey(image.getKey())){
                 image.setCached(true);
@@ -273,6 +279,9 @@ public class MainActivity extends AppCompatActivity {
                 image.setCached(false);
             }
         }
+        String cacheSize =  android.text.format.Formatter.formatFileSize(MainActivity.this,imageCache.getTotalCacheSize());
+        long entries = imageCache.getEntryCount();
+        cacheInfoTextView.setText("current cache size : "+cacheSize +", entries : "+entries);
     }
 
     private class GridViewAdapter extends BaseAdapter {
@@ -308,29 +317,26 @@ public class MainActivity extends AppCompatActivity {
             ImageView picture;
             TextView name;
 
-
             if (v == null) {
                 v = inflater.inflate(R.layout.gridview_item, viewGroup, false);
                 v.setTag(R.id.picture, v.findViewById(R.id.picture));
                 v.setTag(R.id.text, v.findViewById(R.id.text));
             }
 
-            picture = (ImageView) v.getTag(R.id.picture);
-            name = (TextView) v.getTag(R.id.text);
-            syncImages();
+
+            // before preparing view, do an update on which images are cached, and which are not
+            syncImageCacheInfo();
             Image image = (Image) getItem(i);
-            Log.d(TAG, "preparing  image text for  image id "+image.getId());
-
-
-            String fileSize = android.text.format.Formatter.formatFileSize(MainActivity.this,image.getBitmap().getByteCount());
-            picture.setImageBitmap(image.getBitmap());
-
+            name = (TextView) v.getTag(R.id.text);
+            String fileSize = android.text.format.Formatter.formatFileSize(MainActivity.this,image.getByteCount());
             if (image.isCached()) {
                 name.setText("cached  \n" + fileSize +"\n");
-
             } else {
                 name.setText("non-cached \n" + fileSize  +"\n ");
             }
+
+            picture = (ImageView) v.getTag(R.id.picture);
+            picture.setImageBitmap(image.getBitmap());
             v.setTag(image);
             return v;
         }
@@ -366,7 +372,7 @@ public class MainActivity extends AppCompatActivity {
         public String src;
         public ByteBuffer key;
         public Bitmap image;
-        public boolean cached;
+        public int contentLength;
     }
 
     // Get images asynchronously
@@ -393,9 +399,14 @@ public class MainActivity extends AppCompatActivity {
                     bitmap = ConversionUtils.byteBufferToBitmap(byteBuffer);
 
                 } else {
-                    InputStream is = new java.net.URL(imageURL).openStream();
-                    bitmap = BitmapFactory.decodeStream(is);
-                    ByteBuffer value = ConversionUtils.bitmapToByteBuffer(bitmap);
+                    java.net.URL imageContent =  new java.net.URL(imageURL);
+                    wrapper.contentLength = imageContent.openConnection().getContentLength();
+
+                    InputStream is = imageContent.openStream();
+                    byte[] bytes = IOUtils.toByteArray(is);
+                    ByteBuffer value  = ByteBuffer.wrap(bytes);
+
+                    bitmap = ConversionUtils.byteBufferToBitmap(value);
                     imageCache.put(key, value);
                     Log.d(TAG, "putting image in cache for key : " + imageURL);
                 }
@@ -410,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Wrapper wrapper) {
             boolean cached = imageCache.containsKey(wrapper.key) ? true : false;
-            images.add(new Image(images.size()+1,wrapper.src, wrapper.key, wrapper.image, cached));
+            images.add(new Image(images.size()+1,wrapper.src, wrapper.key, wrapper.image, cached, wrapper.contentLength));
             gridViewAdapter.notifyDataSetChanged();
         }
     }

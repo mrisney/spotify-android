@@ -23,7 +23,10 @@ public interface MapCache {
 
     ByteBuffer remove(ByteBuffer key) throws IOException;
 
-    int size() throws IOException;
+    void clear() throws IOException;
 
-    int getNumberOfBytes() throws IOException;
+    long getTotalCacheSize() throws IOException;
+
+    long getEntryCount() throws IOException;
+
 }

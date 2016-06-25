@@ -57,7 +57,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             // Set maximum search results summary :
             try {
-                int maxSearchResults = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_SEARCH_RESULTS", 33);
+                int maxSearchResults = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_SEARCH_RESULTS", 25);
                 maxSearchResultsPref.setSummary(this.getString(R.string.max_search_results_summary).replace("$1", "" + maxSearchResults));
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
@@ -73,7 +73,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             // Set maximum cache images :
             try {
-                int maxCacheImages = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_IMAGES", 33);
+                int maxCacheImages = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_IMAGES", 24);
                 maxCacheImagesPref.setSummary(this.getString(R.string.number_of_images_summary).replace("$3", "" + maxCacheImages));
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
@@ -94,7 +94,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             // Set maximum search results summary :
             try {
-                int maxSearchResults = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_SEARCH_RESULTS", 33);
+                int maxSearchResults = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_SEARCH_RESULTS", 25);
                 maxSearchResultsPref.setSummary(this.getString(R.string.max_search_results_summary).replace("$1", "" + maxSearchResults));
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
@@ -111,7 +111,7 @@ public class SettingsActivity extends PreferenceActivity {
             // Set maximum cache images :
             try {
 
-                int maxCacheImages = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_IMAGES", 33);
+                int maxCacheImages = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_IMAGES", 24);
                 maxCacheImagesPref.setSummary(this.getString(R.string.number_of_images_summary).replace("$3", "" + maxCacheImages));
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
