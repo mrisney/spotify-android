@@ -97,19 +97,6 @@ public class ImageCache implements MapCache {
      * The total size of bytes stored in cache.
      */
     public long getTotalCacheSize() {
-      /*  readLock.lock();
-        try {
-            long cacheTotalSize = new Long(0);
-            for (Map.Entry entry : cache.entrySet()) {
-                MapCacheEntry cacheEntry = (MapCacheEntry) entry.getValue();
-                cacheTotalSize += cacheEntry.getValue().capacity();
-            }
-            return cacheTotalSize;
-
-        } finally {
-            readLock.unlock();
-        }
-        */
         return totalCacheSize;
     }
 
@@ -143,7 +130,7 @@ public class ImageCache implements MapCache {
         totalCacheSize -= cache.get(valueToEvict).getValue().capacity();
         cache.remove(valueToEvict);
 
-        Log.d(TAG, "Evicting entry with last id " + entryToEvict.getId() + " from cache");
+        Log.d(TAG, "Evicting entry with id " + entryToEvict.getId() + " from cache");
         Log.d(TAG, "Number of images now in cache : " + cache.size());
         Log.d(TAG, "Bytes in cache : " + FileUtils.byteCountToDisplaySize(totalCacheSize));
 
