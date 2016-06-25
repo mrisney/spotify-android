@@ -23,6 +23,30 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <b>DEFAULT_MAX_IMAGES : 33</b> and
  * <b>DEFAULT_MAX_BYTES : 1024 * 1024 (1 megabyte)</b>
  * <p/>
+ *
+ * <code>
+ *
+ *      // set the initial size to 5 images, and 50KB
+ *      final int MAX_IMAGES = 5;
+ *      final int MAX_BYTES = 50000;
+ *
+ *      // uses builder pattern
+ *      ImageCache imageCache = new ImageCache.Builder(EvictionPolicy.LRU)
+ *                                             .maxBytes(MAX_BYTES)
+ *                                             .maxImages(MAX_IMAGES)
+ *                                             .build();
+ *
+ *
+ *      String testFile = "src/test/resources/test100k.db";
+ *      ByteBuffer testBytesValue = ConversionUtils.readToBuffer(testFile);
+ *
+ *      ByteBuffer keyOne = ConversionUtils.stringToByteBuffer("one");
+ *      ByteBuffer keyTwo = ConversionUtils.stringToByteBuffer("two");
+ *      imageCache.put(keyOne, ByteBuffer.wrap(bytes));
+ *      imageCache.put(keyTwo, ByteBuffer.wrap(bytes));
+ *      ...
+ *
+ * </code>
  * The standard "put" and "get" methods are available. "putIfAbsent" is present, as it allows a hitcount to be recorded
  * on the CacheEntry. for Least Recently Used LRU - Cache Eviction, that is a factor in determing which CacheEntry should be
  * evicted in event of threshold breach.
