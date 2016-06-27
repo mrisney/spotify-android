@@ -44,6 +44,14 @@ in this project : <a href="https://github.com/mrisney/spotify-android-cache">Cac
 <h6>
 <a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start</h6>
 
+
+<pre style="background-color:#2b2b2b;color:#a9b7c6;font-family:'Menlo';font-size:9.0pt;">
+<span style="color:#9876aa;">imageCache </span>= <span style="color:#cc7832;">new </span>ImageCache.Builder(EvictionPolicy.<span style="font-style:italic;">valueOf</span>(<span style="color:#9876aa;">EVICTION_POLICY</span>))
+        .maxBytes(<span style="color:#9876aa;">MAX_CACHE_BYTES</span>)
+        .maxImages(<span style="color:#9876aa;">MAX_CACHE_IMAGES</span>)
+        .build()<span style="color:#cc7832;">;</span></pre>
+        
+        
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/mrisney">mrisney</a></p>
