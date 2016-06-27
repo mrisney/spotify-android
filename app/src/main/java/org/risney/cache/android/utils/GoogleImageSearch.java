@@ -1,4 +1,4 @@
-package org.risney.cache.android;
+package org.risney.cache.android.utils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -8,19 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * Simple utiltiy class that takes a search term and returns src links to cached Google images, parsed out with JSoup
- *
+ * <p/>
  * http://stackoverflow.com/questions/17082174/android-google-images-search-results
- *
+ * <p/>
  * and
- *
+ * <p/>
  * https://jsoup.org/
  *
  * @author marc.risney@gmail.com
  * @version 1.0
  * @since 2016-06-20
- *
  */
 public class GoogleImageSearch {
 

@@ -1,4 +1,4 @@
-package org.risney.cache.android;
+package org.risney.cache.android.model;
 
 import android.graphics.Bitmap;
 

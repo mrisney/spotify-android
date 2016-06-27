@@ -37,8 +37,5 @@
             android:numColumns="3"
             android:stretchMode="columnWidth"
             android:verticalSpacing="2dp"/>
-
-
-
     </FrameLayout>
 </RelativeLayout>

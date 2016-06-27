@@ -9,6 +9,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.risney.cache.android.utils.SliderBarPreference;
 import org.risney.spotify.R;
 
 /**

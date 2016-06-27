@@ -25,8 +25,8 @@ import org.risney.spotify.R;
  */
 
 
-public class ImageViewActivity extends Activity {
-    private static final String TAG = ImageViewActivity.class.getSimpleName();
+public class ViewImageActivity extends Activity {
+    private static final String TAG = ViewImageActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class ImageViewActivity extends Activity {
         Boolean cached = getIntent().getBooleanExtra("cached",false);
         Log.d(TAG,"cached = "+cached);
 
-        String imageSize =  android.text.format.Formatter.formatFileSize(ImageViewActivity.this, bytes.length);
+        String imageSize =  android.text.format.Formatter.formatFileSize(ViewImageActivity.this, bytes.length);
 
         sb.append(imageSize);
         sb.append("\n");
@@ -64,14 +64,8 @@ public class ImageViewActivity extends Activity {
 
         textView.setText(sb.toString());
 
-
-
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
         String evictionPolicy = sharedPref.getString("EVICTION_POLICY", "LRU");
-
-
-
 
     }
 

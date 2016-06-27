@@ -1,4 +1,4 @@
-package org.risney.cache.android;
+package org.risney.cache.android.utils;
 
 import android.app.AlertDialog;
 import android.content.Context;

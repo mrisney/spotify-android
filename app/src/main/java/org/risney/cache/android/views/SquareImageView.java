@@ -1,4 +1,4 @@
-package org.risney.cache.android;
+package org.risney.cache.android.views;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -3,6 +3,7 @@
     package="org.risney.spotify">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -21,15 +22,21 @@
                 android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
         </activity>
-        <activity android:name="org.risney.cache.android.SettingsActivity"></activity>
+        <activity android:name="org.risney.cache.android.SettingsActivity" />
         <activity
-            android:name="org.risney.cache.android.ImageViewActivity"
+            android:name="org.risney.cache.android.ViewImageActivity"
             android:label="@string/title_activity_image_view"
             android:parentActivityName="org.risney.cache.android.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.risney.cache.android.MainActivity" />
         </activity>
+        <activity
+            android:name="org.risney.cache.android.intro.CacheIntro"
+            android:label="@string/title_activity_cache_intro"></activity>
+
+
+
     </application>
 
 </manifest>

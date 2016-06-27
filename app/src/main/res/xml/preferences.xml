@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/pref_search_settings">
-        <org.risney.cache.android.SliderBarPreference
+        <org.risney.cache.android.utils.SliderBarPreference
             android:title="@string/max_search_results"
             android:summary="@string/max_search_results_summary"
             android:key="MAX_SEARCH_RESULTS"
@@ -18,7 +18,7 @@
             android:entryValues="@array/evictionAlgorithmValues"
             android:defaultValue="LRU" />
 
-        <org.risney.cache.android.SliderBarPreference
+        <org.risney.cache.android.utils.SliderBarPreference
             android:title="@string/number_of_images"
             android:summary="@string/number_of_images_summary"
             android:key="MAX_CACHE_IMAGES"
@@ -31,7 +31,7 @@
             android:summary="Currently $6 entries"/>
         -->
 
-        <org.risney.cache.android.SliderBarPreference
+        <org.risney.cache.android.utils.SliderBarPreference
             android:title="@string/size_of_cache"
             android:text="@string/size_of_cache_unit"
             android:summary="@string/size_of_cache_summary"

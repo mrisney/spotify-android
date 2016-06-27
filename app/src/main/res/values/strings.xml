@@ -23,5 +23,6 @@
     <string name="size_of_cache_unit">Kb</string>
 
     <string name="title_activity_image_view">View Image</string>
+    <string name="title_activity_cache_intro">CacheIntro</string>
 
 </resources>

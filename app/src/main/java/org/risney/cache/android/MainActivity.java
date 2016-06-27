@@ -28,6 +28,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.commons.io.IOUtils;
+import org.risney.cache.android.intro.CacheIntro;
+import org.risney.cache.android.model.Image;
+import org.risney.cache.android.utils.GoogleImageSearch;
 import org.risney.cache.lib.ImageCache;
 import org.risney.cache.lib.policies.EvictionPolicy;
 import org.risney.cache.lib.utils.ConversionUtils;
@@ -45,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    // Setting values
+    // Primary cache  settings
     private int MAX_SEARCH_RESULTS;
     private int MAX_CACHE_IMAGES;
     private int MAX_CACHE_BYTES;
@@ -64,16 +67,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        setTitle("");
+
         cacheInfoTextView = (TextView) findViewById(R.id.text);
         gridViewAdapter = new GridViewAdapter(this);
 
         gridView = (GridView) findViewById(R.id.gridview);
         gridView.setAdapter(gridViewAdapter);
-
         gridView.setOnTouchListener(new View.OnTouchListener() {
             private View touchedView = null;
             private GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                     Image image = (Image) touchedView.getTag();
                     Log.d(TAG, "Double tapped image id " + image.getId());
                     try {
-                        Intent intent = new Intent(MainActivity.this, ImageViewActivity.class);
+                        Intent intent = new Intent(MainActivity.this, ViewImageActivity.class);
 
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -155,12 +157,46 @@ public class MainActivity extends AppCompatActivity {
         MAX_CACHE_BYTES = sharedPref.getInt("MAX_CACHE_BYTES", 1024 * 1024);
         EVICTION_POLICY = sharedPref.getString("EVICTION_POLICY", "LRU");
 
+        initCache();
+
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                //  Create a new boolean and preference and set it to true
+                boolean isFirstStart = sharedPref.getBoolean("firstStart", true);
+
+                //  If the activity has never started before...
+                if (isFirstStart) {
+
+                    //  Launch app intro
+                    Intent i = new Intent(MainActivity.this, CacheIntro.class);
+                    startActivity(i);
+
+                    //  Make a new preferences editor
+                    SharedPreferences.Editor e = sharedPref.edit();
+
+                    //  Edit preference to make it false because we don't want this to run again
+                    e.putBoolean("firstStart", false);
+
+                    //  Apply changes
+                    e.apply();
+                }
+            }
+        });
+
+        // Start the thread
+        t.start();
+
+    }
+
+    private void initCache() {
         imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
                 .maxBytes(MAX_CACHE_BYTES)
                 .maxImages(MAX_CACHE_IMAGES)
                 .build();
 
-        popUp();
     }
 
     private void reConfigureImageCache(SharedPreferences sharedPreferences, String key) {
@@ -187,12 +223,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "unknown setting changed");
         }
 
-        imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
-                .maxBytes(MAX_CACHE_BYTES)
-                .maxImages(MAX_CACHE_IMAGES)
-                .build();
-        images.clear();
-
+        initCache();
     }
 
     private void popUp() {
@@ -251,8 +282,9 @@ public class MainActivity extends AppCompatActivity {
 
             public boolean onQueryTextSubmit(String query) {
                 Toast.makeText(getApplicationContext(), "Searching images for '" + query + "'", Toast.LENGTH_LONG).show();
+                cacheInfoTextView.setText("");
                 images.clear();
-                //imageCache.clear();
+                imageCache.clear();
                 SearchTaskParams taskParams = new SearchTaskParams(query, MAX_SEARCH_RESULTS);
                 new SearchTask().execute(taskParams);
                 searchView.clearFocus();
@@ -280,9 +312,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Async images search task
+     * Async images search task parameters
      */
-    private static class SearchTaskParams {
+    private class SearchTaskParams {
         String query;
         int maxSearchResults;
 
@@ -374,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class Wrapper {
+    private class GetImageTaskParams {
         public String src;
         public ByteBuffer key;
         public ByteBuffer value;
@@ -383,7 +415,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Get images asynchronously
-    private class GetImageTask extends AsyncTask<String, Void, Wrapper> {
+    private class GetImageTask extends AsyncTask<String, Void, GetImageTaskParams> {
 
         @Override
         protected void onPreExecute() {
@@ -391,12 +423,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Wrapper doInBackground(String... URL) {
+        protected GetImageTaskParams doInBackground(String... URL) {
 
             String imageURL = URL[0];
             Bitmap bitmap = null;
-            Wrapper wrapper = new Wrapper();
-            wrapper.src = imageURL;
+            GetImageTaskParams params = new GetImageTaskParams();
+            params.src = imageURL;
 
             try {
 
@@ -404,35 +436,35 @@ public class MainActivity extends AppCompatActivity {
                 if (imageCache.containsKey(key)) {
                     ByteBuffer byteBuffer = imageCache.get(key);
                     bitmap = ConversionUtils.byteBufferToBitmap(byteBuffer);
-                    wrapper.contentLength = byteBuffer.capacity();
-                    wrapper.value = byteBuffer;
+                    params.contentLength = byteBuffer.capacity();
+                    params.value = byteBuffer;
                     Log.d(TAG, "Retrieved image from cache for key : " + imageURL);
 
                 } else {
                     java.net.URL imageContent = new java.net.URL(imageURL);
-                    wrapper.contentLength = imageContent.openConnection().getContentLength();
+                    params.contentLength = imageContent.openConnection().getContentLength();
 
                     InputStream is = imageContent.openStream();
                     byte[] bytes = IOUtils.toByteArray(is);
 
-                    wrapper.value = ByteBuffer.wrap(bytes);
-                    bitmap = ConversionUtils.byteBufferToBitmap(wrapper.value);
+                    params.value = ByteBuffer.wrap(bytes);
+                    bitmap = ConversionUtils.byteBufferToBitmap(params.value);
 
-                    imageCache.put(key, wrapper.value);
+                    imageCache.put(key, params.value);
                     Log.d(TAG, "Putting image in cache for key : " + imageURL);
                 }
-                wrapper.key = key;
-                wrapper.image = bitmap;
+                params.key = key;
+                params.image = bitmap;
             } catch (Exception e) {
                 Log.e(TAG, "Error downloading images " + e.toString());
             }
-            return wrapper;
+            return params;
         }
 
         @Override
-        protected void onPostExecute(Wrapper wrapper) {
-            boolean cached = imageCache.containsKey(wrapper.key) ? true : false;
-            images.add(new Image(images.size() + 1, wrapper.src, wrapper.key, wrapper.value, wrapper.image, cached, wrapper.contentLength));
+        protected void onPostExecute(GetImageTaskParams params) {
+            boolean cached = imageCache.containsKey(params.key) ? true : false;
+            images.add(new Image(images.size() + 1, params.src, params.key, params.value, params.image, cached, params.contentLength));
             gridViewAdapter.notifyDataSetChanged();
         }
     }
