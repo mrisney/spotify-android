@@ -1,4 +1,9 @@
 org.risney.cache.android
+org.risney.cache.android.intro
+org.risney.cache.android.intro.slides
+org.risney.cache.android.model
+org.risney.cache.android.utils
+org.risney.cache.android.views
 org.risney.cache.lib
 org.risney.cache.lib.policies
 org.risney.cache.lib.utils
