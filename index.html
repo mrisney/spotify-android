@@ -38,66 +38,13 @@
 
 <p>The sample android application allows the user to search Google Images for a search term.
    Using the results, and parsing them with JSoup, a collection of Key Values are placed into the cache as ByteBuffer. <br>
-  You can browse the <a href="./javadoc/index.html">javadoc</a> for more information.
+  You can browse the <a href="./javadocs/index.html">javadocs</a> for more information.
 </p>
 
 <h6>
 <a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start</h6>
 
-<div class="highlight highlight-source-java"><pre>
-<span class="pl-k">import</span> <span class="pl-smi">com.steelhouse.twitter.ads.Account</span>;
-<span class="pl-k">import</span> <span class="pl-smi">com.steelhouse.twitter.ads.TwitterAdsClient</span>;
-<span class="pl-k">import</span> <span class="pl-smi">com.steelhouse.twitter.ads.campaign.Campaign</span>;
 
-
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">QuickStart</span> {
-
-  <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-c1">CONSUMER_KEY</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>your consumer key<span class="pl-pds">"</span></span>;
-  <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-c1">CONSUMER_SECRET</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>your consumer secret<span class="pl-pds">"</span></span>;
-  <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-c1">ACCESS_TOKEN</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>access token<span class="pl-pds">"</span></span>;
-  <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-c1">ACCESS_SECRET</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>access token secret<span class="pl-pds">"</span></span>;
-  <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-c1">ACCOUNT_ID</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>account id<span class="pl-pds">"</span></span>;
-
-  <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">void</span> <span class="pl-en">main</span>(<span class="pl-k">String</span>[] <span class="pl-v">args</span>) <span class="pl-k">throws</span> <span class="pl-smi">Exception</span> {
-
-    <span class="pl-c">// initialize the twitter ads api client</span>
-    <span class="pl-smi">TwitterAdsClient</span> client <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">TwitterAdsClient</span>(<span class="pl-c1">CONSUMER_KEY</span>,
-                                                   <span class="pl-c1">CONSUMER_SECRET</span>,
-                                                   <span class="pl-c1">ACCESS_TOKEN</span>,
-                                                   <span class="pl-c1">ACCESS_SECRET</span>);
-
-    client<span class="pl-k">.</span>setTrace(<span class="pl-c1">false</span>);
-    <span class="pl-smi">Account</span> account <span class="pl-k">=</span> client<span class="pl-k">.</span>getAccount(<span class="pl-c1">ACCOUNT_ID</span>);
-    <span class="pl-smi">String</span> fundingInstrumentId <span class="pl-k">=</span> account<span class="pl-k">.</span>getFundingInstruments()<span class="pl-k">.</span>get(<span class="pl-c1">0</span>)<span class="pl-k">.</span>getId();
-
-    <span class="pl-smi">Date</span> now <span class="pl-k">=</span> <span class="pl-smi">Date</span><span class="pl-k">.</span>from(<span class="pl-smi">Instant</span><span class="pl-k">.</span>now());
-    <span class="pl-smi">Calendar</span> cal <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">GregorianCalendar</span>();
-    cal<span class="pl-k">.</span>add(<span class="pl-smi">Calendar</span><span class="pl-c1"><span class="pl-k">.</span>DAY_OF_MONTH</span>, <span class="pl-k">+</span><span class="pl-c1">7</span>);
-    <span class="pl-smi">Date</span> weekFromToday <span class="pl-k">=</span> cal<span class="pl-k">.</span>getTime();
-
-
-    <span class="pl-c">// create your campaign</span>
-    <span class="pl-smi">Campaign</span> campaign <span class="pl-k">=</span> <span class="pl-smi">Campaign</span><span class="pl-k">.</span>builder()
-                .account(account)
-                .funding_instrument_id(fundingInstrumentId)
-                .currency(<span class="pl-s"><span class="pl-pds">"</span>US<span class="pl-pds">"</span></span>)
-                .daily_budget_amount_local_micro(<span class="pl-c1">1000000</span>)
-                .total_budget_amount_local_micro(<span class="pl-c1">7000000</span>)
-                .name(<span class="pl-s"><span class="pl-pds">"</span>My New Campaign<span class="pl-pds">"</span></span>)
-                .paused(<span class="pl-c1">false</span>)
-                .start_time(now)
-                .end_time(weekFromToday)
-                .build();
-
-    campaign<span class="pl-k">.</span>save();
-
-    <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>println(<span class="pl-s"><span class="pl-pds">"</span>campaign newly created : <span class="pl-pds">"</span></span> <span class="pl-k">+</span> campaign<span class="pl-k">.</span>toString());
-
-    <span class="pl-c">// loop through campaigns ...</span>
-    <span class="pl-k">for</span> (<span class="pl-smi">Campaign</span> c <span class="pl-k">:</span> account<span class="pl-k">.</span>getCampaigns()) {
-      <span class="pl-smi">System</span><span class="pl-k">.</span>out<span class="pl-k">.</span>println(c<span class="pl-k">.</span>toString());
-    }
-}</pre></div>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/mrisney">mrisney</a></p>
