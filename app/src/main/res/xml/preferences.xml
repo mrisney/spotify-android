@@ -36,8 +36,8 @@
             android:text="@string/size_of_cache_unit"
             android:summary="@string/size_of_cache_summary"
             android:key="MAX_CACHE_KBYTES"
-            android:max="1024"
-            android:defaultValue="100" />
+            android:max="512"
+            android:defaultValue="200" />
         <!--
         <Preference
             android:key="pref_static_field_key"

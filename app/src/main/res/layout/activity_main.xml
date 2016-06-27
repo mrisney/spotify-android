@@ -9,23 +9,26 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="org.risney.cache.android.MainActivity">
 
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="1dp"
-        android:layout_gravity="top"
-        android:textColor="@android:color/black"
-        android:lines="4"
-        android:background="#ffffff" />
-
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="1dp"
+            android:layout_gravity="top"
+            android:textColor="@android:color/black"
+            android:lines="4"
+            android:background="#ffffff" />
+
+
 
         <GridView
             android:id="@+id/gridview"
@@ -33,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:horizontalSpacing="2dp"
-            android:paddingTop="25dp"
+            android:paddingTop="35dp"
             android:numColumns="3"
             android:stretchMode="columnWidth"
             android:verticalSpacing="2dp"/>

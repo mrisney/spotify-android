@@ -25,7 +25,7 @@ public interface MapCache {
 
     void clear() throws IOException;
 
-    long getTotalCacheSize() throws IOException;
+    long getTotalBytes() throws IOException;
 
     long getEntryCount() throws IOException;
 

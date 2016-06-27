@@ -37,7 +37,7 @@ public class CacheIntro extends AppIntro {
 
 
 
-        addSlide(AppIntroFragment.newInstance("HTML Description", Html.fromHtml("<b>Description bold...</b><br><i>Description italic...</i>"),
+        addSlide(AppIntroFragment.newInstance("Caching downloaded images", Html.fromHtml("<b>Description bold...</b><br><i>Description italic...</i>"),
                 R.drawable.blue, Color.parseColor("#2196F3")));
 
         addSlide(SampleSlide.newInstance(R.layout.intro2));

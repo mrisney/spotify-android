@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageCache imageCache;
     private SharedPreferences sharedPref;
-    private SharedPreferences.OnSharedPreferenceChangeListener listener;
+    private SharedPreferences.OnSharedPreferenceChangeListener sharedPrefChangelistener;
 
     private GridViewAdapter gridViewAdapter;
     private GridView gridView;
@@ -73,7 +73,70 @@ public class MainActivity extends AppCompatActivity {
 
         cacheInfoTextView = (TextView) findViewById(R.id.text);
         gridViewAdapter = new GridViewAdapter(this);
+        initGridView();
 
+
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        sharedPrefChangelistener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                reConfigureImageCache(sharedPreferences, key);
+            }
+        };
+
+        sharedPref.registerOnSharedPreferenceChangeListener(sharedPrefChangelistener);
+
+        MAX_SEARCH_RESULTS = sharedPref.getInt("MAX_SEARCH_RESULTS", 24);
+        MAX_CACHE_IMAGES = sharedPref.getInt("MAX_CACHE_IMAGES", 23);
+        MAX_CACHE_BYTES = sharedPref.getInt("MAX_CACHE_BYTES", 200 * 1024);
+        EVICTION_POLICY = sharedPref.getString("EVICTION_POLICY", "LRU");
+
+        initCache();
+
+        Thread intro = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                //  Create a new boolean and preference and set it to true
+                boolean isFirstStart = sharedPref.getBoolean("firstStart", true);
+
+                //  If the activity has never started before...
+                if (isFirstStart) {
+
+                    //  Launch app intro
+                    Intent i = new Intent(MainActivity.this, CacheIntro.class);
+                    startActivity(i);
+
+                    //  Make a new preferences editor
+                    SharedPreferences.Editor e = sharedPref.edit();
+
+                    //  Edit preference to make it false because we don't want this to run again
+                    e.putBoolean("firstStart", false);
+
+                    //  Apply changes
+                    e.apply();
+                }
+            }
+        });
+
+        // Start the intro thread
+        intro.start();
+        toastIntro();
+
+    }
+
+    private void initCache() {
+        imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
+                .maxBytes(MAX_CACHE_BYTES)
+                .maxImages(MAX_CACHE_IMAGES)
+                .build();
+
+
+    }
+
+    private void initGridView() {
         gridView = (GridView) findViewById(R.id.gridview);
         gridView.setAdapter(gridViewAdapter);
         gridView.setOnTouchListener(new View.OnTouchListener() {
@@ -113,21 +176,22 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
-                    Image image = (Image) touchedView.getTag();
-                    Log.d(TAG, "Single tapped image id " + image.getId());
-                    if (null == imageCache.get(image.getKey())) {
-                        Toast.makeText(getApplicationContext(), "Adding image to cache", Toast.LENGTH_SHORT).show();
-                        imageCache.put(image.getKey(), image.getValue());
-                        // since not downloading images, but adding a bitmap into cache, update the image cache info
-                        syncImageCacheInfo();
+                    if (null != touchedView) {
+                        Image image = (Image) touchedView.getTag();
+                        if (null == imageCache.get(image.getKey())) {
+                            Toast.makeText(getApplicationContext(), "Adding image to cache", Toast.LENGTH_SHORT).show();
+                            imageCache.put(image.getKey(), image.getValue());
+                            // since not downloading images, but adding a bitmap into cache, update the image cache info
+                            syncImageCacheInfo();
 
-                    }
-                    gridView.startLayoutAnimation();
-                    new Handler().postDelayed(new Runnable() {
-                        public void run() {
-                            gridViewAdapter.notifyDataSetChanged();
                         }
-                    }, 500);
+                        gridView.startLayoutAnimation();
+                        new Handler().postDelayed(new Runnable() {
+                            public void run() {
+                                gridViewAdapter.notifyDataSetChanged();
+                            }
+                        }, 500);
+                    }
                     return super.onSingleTapConfirmed(e);
                 }
             });
@@ -135,76 +199,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 int position = gridView.pointToPosition((int) event.getX(), (int) event.getY());
-                touchedView = gridView.getChildAt(position);
-                gestureDetector.onTouchEvent(event);
+                try {
+                    touchedView = gridView.getChildAt(position);
+                    gestureDetector.onTouchEvent(event);
+                } catch (NullPointerException e) {
+                    Log.d(TAG, "clicked area not close to image");
+                }
                 return true;
             }
         });
-
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                reConfigureImageCache(sharedPreferences, key);
-            }
-        };
-
-        sharedPref.registerOnSharedPreferenceChangeListener(listener);
-
-        MAX_SEARCH_RESULTS = sharedPref.getInt("MAX_SEARCH_RESULTS", 33);
-        MAX_CACHE_IMAGES = sharedPref.getInt("MAX_CACHE_IMAGES", 33);
-        MAX_CACHE_BYTES = sharedPref.getInt("MAX_CACHE_BYTES", 1024 * 1024);
-        EVICTION_POLICY = sharedPref.getString("EVICTION_POLICY", "LRU");
-
-        initCache();
-
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-
-                //  Create a new boolean and preference and set it to true
-                boolean isFirstStart = sharedPref.getBoolean("firstStart", true);
-
-                //  If the activity has never started before...
-                if (isFirstStart) {
-
-                    //  Launch app intro
-                    Intent i = new Intent(MainActivity.this, CacheIntro.class);
-                    startActivity(i);
-
-                    //  Make a new preferences editor
-                    SharedPreferences.Editor e = sharedPref.edit();
-
-                    //  Edit preference to make it false because we don't want this to run again
-                    e.putBoolean("firstStart", false);
-
-                    //  Apply changes
-                    e.apply();
-                }
-            }
-        });
-
-        // Start the thread
-        t.start();
-
     }
-
-    private void initCache() {
-        imageCache = new ImageCache.Builder(EvictionPolicy.valueOf(EVICTION_POLICY))
-                .maxBytes(MAX_CACHE_BYTES)
-                .maxImages(MAX_CACHE_IMAGES)
-                .build();
-
-    }
+    /**
+     * Any changes, reset the cache
+     */
 
     private void reConfigureImageCache(SharedPreferences sharedPreferences, String key) {
         Log.d(TAG, key + " setting changed ...");
 
         switch (key) {
             case "MAX_SEARCH_RESULTS":
-                MAX_SEARCH_RESULTS = sharedPreferences.getInt("MAX_SEARCH_RESULTS", 33);
+                MAX_SEARCH_RESULTS = sharedPreferences.getInt("MAX_SEARCH_RESULTS", 24);
                 Log.d(TAG, "new max search results = " + MAX_SEARCH_RESULTS);
                 break;
             case "EVICTION_POLICY":
@@ -212,21 +226,27 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "new eviction policy = " + EVICTION_POLICY);
                 break;
             case "MAX_CACHE_IMAGES":
-                MAX_CACHE_IMAGES = sharedPreferences.getInt("MAX_CACHE_IMAGES", 33);
+                MAX_CACHE_IMAGES = sharedPreferences.getInt("MAX_CACHE_IMAGES", 23);
                 Log.d(TAG, "new max cache images = " + MAX_CACHE_IMAGES);
                 break;
             case "MAX_CACHE_KBYTES":
-                MAX_CACHE_BYTES = sharedPreferences.getInt("MAX_CACHE_KBYTES", 1024) * 1024;
+                MAX_CACHE_BYTES = sharedPreferences.getInt("MAX_CACHE_KBYTES", 200) * 1024;
                 Log.d(TAG, "new max cache size = " + MAX_CACHE_BYTES);
                 break;
             default:
                 Log.d(TAG, "unknown setting changed");
         }
-
         initCache();
+        images.clear();
+        imageCache.clear();
+
+        syncImageCacheInfo();
     }
 
-    private void popUp() {
+    /**
+     * Simple intro with the Spotify image
+     */
+    private void toastIntro() {
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.popup, (ViewGroup) findViewById(R.id.like_popup_iv));
@@ -259,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Set up the application bar, primarily as a search bar
-     * using Google Image Search, and JSoup to retrieve an image
+     * using Google Image Search, and JSoup to retrieve images
      */
 
     @Override
@@ -296,7 +316,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Updates the metadata information, loops through images
+     * sets property to cached or not cached
      */
     private void syncImageCacheInfo() {
         for (Image image : images) {
@@ -306,9 +327,23 @@ public class MainActivity extends AppCompatActivity {
                 image.setCached(false);
             }
         }
-        String cacheSize = android.text.format.Formatter.formatFileSize(MainActivity.this, imageCache.getTotalCacheSize());
+        String cacheSize = android.text.format.Formatter.formatFileSize(MainActivity.this, imageCache.getTotalBytes());
+        String maxCacheSize = android.text.format.Formatter.formatFileSize(MainActivity.this, MAX_CACHE_BYTES);
         long entries = imageCache.getEntryCount();
-        cacheInfoTextView.setText("current cache size : " + cacheSize + ", entries : " + entries);
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("current cache size : ");
+        sb.append(cacheSize);
+        sb.append(",  max: ");
+        sb.append(maxCacheSize +"\n");
+        sb.append("entries : ");
+        sb.append(entries);
+        sb.append(",  max : ");
+        sb.append(MAX_SEARCH_RESULTS);
+
+        cacheInfoTextView.setText(sb.toString());
+
+
     }
 
     /**
@@ -324,6 +359,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Adapter for GridView
+     */
     private class GridViewAdapter extends BaseAdapter {
         private LayoutInflater inflater;
 
@@ -363,7 +401,8 @@ public class MainActivity extends AppCompatActivity {
                 v.setTag(R.id.text, v.findViewById(R.id.text));
             }
 
-            // before preparing view, do an update on which images are cached, and which are not
+            // Before preparing view, do an update on which images are cached, and which are not,
+            // update cache info metadata.
             syncImageCacheInfo();
 
             Image image = (Image) getItem(i);
@@ -381,6 +420,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * SearchTask - Async task, queries Google Search for search term,
+     * spawns subsequent  Async task - GetImageTask.
+     */
     private class SearchTask extends AsyncTask<SearchTaskParams, Void, Void> {
 
         List<String> srcLinks;
@@ -406,6 +449,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     private class GetImageTaskParams {
         public String src;
         public ByteBuffer key;
@@ -414,7 +458,10 @@ public class MainActivity extends AppCompatActivity {
         public int contentLength;
     }
 
-    // Get images asynchronously
+    /**
+     * GetImageTask - Async task, either downloads images from SearchTask Src URL
+     * (and inserts into cache) - or gets image from cache.
+     */
     private class GetImageTask extends AsyncTask<String, Void, GetImageTaskParams> {
 
         @Override
