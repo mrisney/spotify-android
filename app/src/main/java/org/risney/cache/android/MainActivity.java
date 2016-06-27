@@ -249,14 +249,15 @@ public class MainActivity extends AppCompatActivity {
     private void toastIntro() {
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.popup, (ViewGroup) findViewById(R.id.like_popup_iv));
-        ImageView imageView = (ImageView) layout.findViewById(R.id.like_popup_iv);
-        imageView.setBackgroundResource(R.drawable.spotify);
+
+        View view = inflater.from(this).inflate(R.layout.popup, null);
+        ImageView iv = (ImageView)view.findViewById(R.id.popup_image);
+        iv.setBackgroundResource(R.drawable.spotify);
 
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.BOTTOM, 0, 150);
         toast.setDuration(Toast.LENGTH_SHORT);
-        toast.setView(layout);
+        toast.setView(view);
         toast.show();
     }
 

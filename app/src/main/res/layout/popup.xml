@@ -11,7 +11,7 @@
     android:paddingRight="35dp"
     >
     <ImageView
-        android:id="@+id/like_popup_iv"
+        android:id="@+id/popup_image"
         android:layout_width="wrap_content"
         android:layout_height="300dp"
         android:layout_marginTop="100dp"
