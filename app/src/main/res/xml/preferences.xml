@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/pref_search_settings">
+        <org.risney.cache.android.utils.SliderBarPreference
+            android:title="@string/max_search_results"
+            android:summary="@string/max_search_results_summary"
+            android:key="MAX_SEARCH_RESULTS"
+            android:max="50"
+            android:defaultValue="25" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_cache_settings">
+        <ListPreference
+            android:title="@string/cache_algorithm"
+            android:summary="@string/cache_algorithm_summary"
+            android:key="EVICTION_POLICY"
+            android:entries="@array/evictionAlgorithm"
+            android:entryValues="@array/evictionAlgorithmValues"
+            android:defaultValue="LRU" />
+
+        <org.risney.cache.android.utils.SliderBarPreference
+            android:title="@string/number_of_images"
+            android:summary="@string/number_of_images_summary"
+            android:key="MAX_CACHE_IMAGES"
+            android:max="50"
+            android:defaultValue="24" />
+        <!--
+        <Preference
+            android:key="pref_static_field_key2"
+            android:selectable="false"
+            android:summary="Currently $6 entries"/>
+        -->
+
+        <org.risney.cache.android.utils.SliderBarPreference
+            android:title="@string/size_of_cache"
+            android:text="@string/size_of_cache_unit"
+            android:summary="@string/size_of_cache_summary"
+            android:key="MAX_CACHE_KBYTES"
+            android:max="512"
+            android:defaultValue="200" />
+        <!--
+        <Preference
+            android:key="pref_static_field_key"
+            android:selectable="false"
+            android:title="Current Size"
+            android:summary="Current Size of all entries is $5 Kb"/>
+        -->
+    </PreferenceCategory>
+
+</PreferenceScreen>

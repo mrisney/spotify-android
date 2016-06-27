@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ImageCache</string>
+    <string name="app_label">ImageCache</string>
+    <string name="search_hint">Search Google Images</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="pref_search_settings">Search Settings</string>
+    <string name="max_search_results">Maximum number of search results</string>
+    <string name="max_search_results_summary">Current value is $1</string>
+
+    <string name="pref_cache_settings">Cache Settings</string>
+
+    <string name="cache_algorithm">Cache algorithm</string>
+    <string name="cache_algorithm_summary">Current eviction policy is $2</string>
+
+    <string name="number_of_images">Maximum number of images in cache</string>
+    <string name="number_of_images_summary">Current maximum value is $3</string>
+
+    <string name="size_of_cache">Maximum size of cache</string>
+    <string name="size_of_cache_summary">Current maximum size $4 Kb</string>
+    <string name="size_of_cache_unit">Kb</string>
+
+    <string name="title_activity_image_view">View Image</string>
+    <string name="title_activity_cache_intro">CacheIntro</string>
+
+</resources>

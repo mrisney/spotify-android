@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cred_menu_like_popup_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/customshapetransparent"
+    android:paddingTop="35dp"
+    android:paddingBottom="25dp"
+    android:paddingLeft="35dp"
+    android:paddingRight="35dp"
+    >
+    <ImageView
+        android:id="@+id/popup_image"
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
+        android:layout_marginTop="100dp"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
