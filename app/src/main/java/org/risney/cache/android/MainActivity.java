@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
         MAX_SEARCH_RESULTS = sharedPref.getInt("MAX_SEARCH_RESULTS", 24);
         MAX_CACHE_IMAGES = sharedPref.getInt("MAX_CACHE_IMAGES", 23);
-        MAX_CACHE_BYTES = sharedPref.getInt("MAX_CACHE_BYTES", 200 * 1024);
+        MAX_CACHE_BYTES = sharedPref.getInt("MAX_CACHE_KBYTES", 200 * 1024);
         EVICTION_POLICY = sharedPref.getString("EVICTION_POLICY", "LRU");
 
         initCache();
@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (NullPointerException e) {
                     Log.d(TAG, "clicked area not close to image");
                 }
-                return true;
+                return false;
             }
         });
     }
@@ -340,6 +340,8 @@ public class MainActivity extends AppCompatActivity {
         sb.append("entries : ");
         sb.append(entries);
         sb.append(",  max : ");
+        sb.append(MAX_CACHE_IMAGES);
+        sb.append(",  search results : ");
         sb.append(MAX_SEARCH_RESULTS);
 
         cacheInfoTextView.setText(sb.toString());
