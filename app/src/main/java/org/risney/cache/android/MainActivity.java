@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -49,10 +50,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // Primary cache  settings
-    private int MAX_SEARCH_RESULTS;
-    private int MAX_CACHE_IMAGES;
-    private int MAX_CACHE_BYTES;
-    private String EVICTION_POLICY;
+    private volatile int MAX_SEARCH_RESULTS;
+    private volatile int MAX_CACHE_IMAGES;
+    private volatile int MAX_CACHE_BYTES;
+    private volatile String EVICTION_POLICY;
 
     private ImageCache imageCache;
     private SharedPreferences sharedPref;
@@ -298,7 +299,12 @@ public class MainActivity extends AppCompatActivity {
         SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
 
             public boolean onQueryTextChange(String newText) {
+                if (TextUtils.isEmpty(newText)){
+                    cacheInfoTextView.setText("");
+                    images.clear();
+                }
                 return false;
+
             }
 
             public boolean onQueryTextSubmit(String query) {
@@ -339,9 +345,7 @@ public class MainActivity extends AppCompatActivity {
         sb.append(maxCacheSize +"\n");
         sb.append("entries : ");
         sb.append(entries);
-        sb.append(",  max : ");
-        sb.append(MAX_CACHE_IMAGES);
-        sb.append(",  search results : ");
+        sb.append(",  max search results : ");
         sb.append(MAX_SEARCH_RESULTS);
 
         cacheInfoTextView.setText(sb.toString());
