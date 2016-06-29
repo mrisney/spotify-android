@@ -6,10 +6,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.Html;
 
 import com.github.paolorotolo.appintro.AppIntro;
-import com.github.paolorotolo.appintro.AppIntroFragment;
 
 import org.risney.cache.android.MainActivity;
 import org.risney.cache.android.intro.slides.SampleSlide;
@@ -21,25 +19,8 @@ public class CacheIntro extends AppIntro {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Add your slide's fragments here.
-        // AppIntro will automatically generate the dots indicator and buttons.
-        //addSlide(first_fragment);
-        //addSlide(second_fragment);
-        //addSlide(third_fragment);
-        //addSlide(fourth_fragment);
 
-        // Instead of fragments, you can also use our default slide
-        // Just set a title, description, background and image. AppIntro will do the rest.
-
-
-
-     //   Drawable draw = res.getDrawable( R.drawable.spotify );
-
-
-
-        addSlide(AppIntroFragment.newInstance("Caching downloaded images", Html.fromHtml("<b>Description bold...</b><br><i>Description italic...</i>"),
-                R.drawable.blue, Color.parseColor("#2196F3")));
-
+        addSlide(SampleSlide.newInstance(R.layout.intro));
         addSlide(SampleSlide.newInstance(R.layout.intro2));
         addSlide(SampleSlide.newInstance(R.layout.intro3));
 

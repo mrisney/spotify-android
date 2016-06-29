@@ -82,7 +82,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             // Set maximum cache size :
             try {
-                int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_KBYTES", 512);
+                int maxCacheSize = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("MAX_CACHE_KBYTES", 200);
                 maxCacheSizePref.setSummary(this.getString(R.string.size_of_cache_summary).replace("$4", "" + maxCacheSize));
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());

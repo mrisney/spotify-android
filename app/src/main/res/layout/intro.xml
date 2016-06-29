@@ -1,50 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#222222"
     android:layout_weight="10"
-    android:id="@+id/main">
+    android:background="#222222"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_gravity="center"
-        android:gravity="center"
-        android:paddingLeft="32dp"
         android:layout_weight="3"
         android:fontFamily="sans-serif-thin"
-        android:textColor="#ffffff"
+        android:gravity="center"
+        android:paddingLeft="32dp"
         android:paddingRight="32dp"
-        android:textSize="28sp"
-        android:text="Choosing an eviction"/>
+        android:text="Search the web for images using a search term"
+        android:textColor="#ffffff"
+        android:textSize="28sp" />
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:orientation="vertical"
+        android:layout_weight="5"
         android:gravity="center"
-        android:layout_weight="5">
+        android:orientation="vertical">
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:src="@drawable/eviction"/>
-
+            android:src="@drawable/search_bar_arrows" />
     </LinearLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="3"
         android:layout_gravity="left"
+        android:layout_weight="3"
         android:gravity="left"
-        android:textColor="#ffffff"
         android:paddingLeft="64dp"
         android:paddingRight="64dp"
-        android:textSize="16sp"
-        android:text="In the settings, there are 4 eviction policies to choose from, if the maximum search cache size is less than the maximum search results, the difference will be evicted."/>
+        android:text="At the top of the application is a simple search bar, enter a search term to search the web, each one of the resulting images will be stored locally, the settings bar will allow you to choose your cache eviction policy."
+        android:textColor="#ffffff"
+        android:textSize="16sp" />
+
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="64dp" />

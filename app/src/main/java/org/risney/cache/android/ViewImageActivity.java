@@ -56,14 +56,11 @@ public class ViewImageActivity extends Activity {
         Boolean cached = getIntent().getBooleanExtra("cached",false);
         Log.d(TAG,"cached = "+cached);
 
-        String imageSize =  android.text.format.Formatter.formatFileSize(ViewImageActivity.this, bytes.length);
+        //String imageSize =  android.text.format.Formatter.formatFileSize(ViewImageActivity.this, bytes.length);
 
-        sb.append(imageSize);
-        sb.append("\n");
-        sb.append("Cached = "+cached);
-
+        //sb.append(imageSize);
+        sb.append("cached = "+cached);
         textView.setText(sb.toString());
-
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         String evictionPolicy = sharedPref.getString("EVICTION_POLICY", "LRU");
 
