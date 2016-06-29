@@ -8,37 +8,32 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="org.risney.cache.android.MainActivity">
-
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
         <TextView
             android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_gravity="top"
+            android:background="#ffff"
+            android:lines="4"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:paddingTop="1dp"
-            android:layout_gravity="top"
-            android:textColor="@android:color/black"
-            android:lines="4"
-            android:background="#ffffff" />
-
-
-
-        <GridView
-            android:id="@+id/gridview"
-            android:layoutAnimation="@anim/gridview_fade"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:horizontalSpacing="2dp"
-            android:paddingTop="35dp"
-            android:numColumns="3"
-            android:stretchMode="columnWidth"
-            android:verticalSpacing="2dp"/>
-    </FrameLayout>
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <GridView
+                android:id="@+id/gridview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:horizontalSpacing="2dp"
+                android:numColumns="3"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="2dp" />
+        </FrameLayout>
+    </LinearLayout>
 </RelativeLayout>

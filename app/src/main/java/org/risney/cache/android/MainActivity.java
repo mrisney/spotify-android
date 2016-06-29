@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -133,12 +134,12 @@ public class MainActivity extends AppCompatActivity {
                 .maxImages(MAX_CACHE_IMAGES)
                 .build();
 
-
     }
 
     private void initGridView() {
         gridView = (GridView) findViewById(R.id.gridview);
         gridView.setAdapter(gridViewAdapter);
+
         gridView.setOnTouchListener(new View.OnTouchListener() {
             private View touchedView = null;
             private GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
@@ -205,9 +206,11 @@ public class MainActivity extends AppCompatActivity {
                 } catch (NullPointerException e) {
                     Log.d(TAG, "clicked area not close to image");
                 }
-                return true;
+                return false;
             }
         });
+
+
     }
     /**
      * Any changes, reset the cache
@@ -298,6 +301,12 @@ public class MainActivity extends AppCompatActivity {
         SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
 
             public boolean onQueryTextChange(String newText) {
+                // clear "X" search text
+                if (TextUtils.isEmpty(newText)){
+                    cacheInfoTextView.setText("");
+                    images.clear();
+                }
+
                 return false;
             }
 
@@ -305,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Searching images for '" + query + "'", Toast.LENGTH_LONG).show();
                 cacheInfoTextView.setText("");
                 images.clear();
-                imageCache.clear();
+                //imageCache.clear();
                 SearchTaskParams taskParams = new SearchTaskParams(query, MAX_SEARCH_RESULTS);
                 new SearchTask().execute(taskParams);
                 searchView.clearFocus();
