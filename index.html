@@ -69,9 +69,13 @@
           <li>LRU - Least Recently Used</li>
           <li>LFU - Least Frequently Used</li>
           <li>FIFO - First In, First Out</li>
-          <li>SIze - the largest image, in bytes is evicted.<br>
-          </li>
+          <li>SIze - the largest image, in bytes is evicted.</li>
         </ul>
+        For the most part these eviction policies are built on
+        Comparators in Java.<br>
+        Each eviction policy, is built on a class, and added to an Enum,
+        and then adding it to the Android UI, as a preferences.xml and
+        so forth.<br>
         <p></p>
         <p>You can browse the <a href="./javadocs/index.html">javadocs</a>
           for more information.<br>
