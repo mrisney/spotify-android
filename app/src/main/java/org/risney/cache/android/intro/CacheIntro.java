@@ -10,7 +10,7 @@ import android.support.v4.app.Fragment;
 import com.github.paolorotolo.appintro.AppIntro;
 
 import org.risney.cache.android.MainActivity;
-import org.risney.cache.android.intro.slides.SampleSlide;
+import org.risney.cache.android.intro.slides.SlideTemplate;
 import org.risney.spotify.R;
 
 public class CacheIntro extends AppIntro {
@@ -20,9 +20,9 @@ public class CacheIntro extends AppIntro {
         super.onCreate(savedInstanceState);
 
 
-        addSlide(SampleSlide.newInstance(R.layout.intro));
-        addSlide(SampleSlide.newInstance(R.layout.intro2));
-        addSlide(SampleSlide.newInstance(R.layout.intro3));
+        addSlide(SlideTemplate.newInstance(R.layout.intro));
+        addSlide(SlideTemplate.newInstance(R.layout.intro2));
+        addSlide(SlideTemplate.newInstance(R.layout.intro3));
 
 
         // OPTIONAL METHODS

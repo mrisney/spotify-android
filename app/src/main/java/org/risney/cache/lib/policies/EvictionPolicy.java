@@ -115,7 +115,7 @@ public enum EvictionPolicy {
      * The Android Support Library r21 and above includes the Palette class, which lets you extract prominent colors from an image. To extract these colors,
      * pass a Bitmap object to the Palette.generate() static method in the background thread where you load your images
      * <p/>
-     * Do a dominate color review and create and set the RGB property of CacheEntry, then olny images with prominent specific colors would be cached
+     * Do a dominate color review and create and set the RGB property of CacheEntry, then only images with prominent specific colors would be cached
      * just ideas, let your imagination run wild
      */
 
