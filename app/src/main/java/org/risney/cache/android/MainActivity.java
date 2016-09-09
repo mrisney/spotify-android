@@ -28,6 +28,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.unity3d.ads.IUnityAdsListener;
+import com.unity3d.ads.UnityAds;
+
 import org.apache.commons.io.IOUtils;
 import org.risney.cache.android.intro.CacheIntro;
 import org.risney.cache.android.model.Image;
@@ -37,13 +40,11 @@ import org.risney.cache.lib.policies.EvictionPolicy;
 import org.risney.cache.lib.utils.ConversionUtils;
 import org.risney.spotify.R;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     private List<Image> images = new LinkedList<Image>();
     private TextView cacheInfoTextView;
 
+    private final  static String UNITY_GAME_ID = "1137050";
+    final private UnityAdsListener unityAdsListener = new UnityAdsListener();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -71,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+
+        UnityAds.setDebugMode(true);
 
         cacheInfoTextView = (TextView) findViewById(R.id.text);
         gridViewAdapter = new GridViewAdapter(this);
@@ -146,7 +151,15 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
 
-                    Image image = (Image) touchedView.getTag();
+                    if (UnityAds.isReady()){
+                        UnityAds.show(MainActivity.this);
+                    } else{
+                        UnityAds.initialize(MainActivity.this,UNITY_GAME_ID,unityAdsListener);
+
+                    }
+
+                    /*
+                       Image image = (Image) touchedView.getTag();
                     Log.d(TAG, "Double tapped image id " + image.getId());
                     try {
                         Intent intent = new Intent(MainActivity.this, ViewImageActivity.class);
@@ -171,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception ex) {
 
                     }
-
+*/
                     return super.onDoubleTap(e);
                 }
 
@@ -352,6 +365,34 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    private class UnityAdsListener implements IUnityAdsListener {
+
+        @Override
+        public void onUnityAdsReady(String s) {
+            Toast.makeText(getApplicationContext(), "Unity Ads Ready", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onUnityAdsStart(String s) {
+            Toast.makeText(getApplicationContext(), "Unity Ads Starting", Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        public void onUnityAdsFinish(String s, UnityAds.FinishState finishState) {
+            Toast.makeText(getApplicationContext(), "Unity Ads Finished", Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        public void onUnityAdsError(UnityAds.UnityAdsError unityAdsError, String s) {
+            Toast.makeText(getApplicationContext(), "Unity Ads Error : "+ s , Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+
 
     /**
      * Async images search task parameters

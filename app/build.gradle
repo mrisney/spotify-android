@@ -8,8 +8,8 @@ android {
         applicationId "org.risney.spotify"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
     }
     buildTypes {
         release {
@@ -20,16 +20,14 @@ android {
 }
 
 dependencies {
-
     compile 'com.android.support:recyclerview-v7:23.3.0'
     compile 'com.android.support:support-v4:23.3.0'
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
-
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+    compile 'commons-io:commons-io:2.5'
     compile 'com.github.paolorotolo:appintro:4.0.0'
     compile 'com.android.support:appcompat-v7:23.4.0'
-    compile group: 'org.jsoup', name: 'jsoup', version: '1.9.2'
-
+    compile 'org.jsoup:jsoup:1.9.2'
+    compile project(':unity-ads')
 }

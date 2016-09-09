@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Simple utiltiy class that takes a search term and returns src links to cached Google images, parsed out with JSoup
+ * Simple utility class that takes a search term and returns src links to cached Google images, parsed out with JSoup
  * <p/>
  * http://stackoverflow.com/questions/17082174/android-google-images-search-results
  * <p/>

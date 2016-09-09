@@ -51,7 +51,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * </pre>
  *
  * The standard "put" and "get" methods are available. "putIfAbsent" is present, as it allows a hitcount to be recorded
- * on the CacheEntry. for Least Recently Used LRU - Cache Eviction, that is a factor in determing which CacheEntry should be
+ * on the CacheEntry. for Least Recently Used LRU - Cache Eviction, that is a factor in determining which CacheEntry should be
  * evicted in event of threshold breach.
  *
  * @author marc.risney@gmail.com
@@ -137,7 +137,7 @@ public class ImageCache implements MapCache {
     }
 
     /**
-     * @return MapPutResult private method that uses the comparators, size and number of bytes to evaluate whether to
+     * @return MapCacheEntry private method that uses the comparators, size and number of bytes to evaluate whether to
      * evict an entry. This is essentially the secret sauce.
      * current cache size, and number of entries are updated accordingly.
      */
@@ -308,6 +308,8 @@ public class ImageCache implements MapCache {
             writeLock.unlock();
         }
     }
+
+    
 
     /**
      * This is the builder method for the optional max number of images and max byte size.
